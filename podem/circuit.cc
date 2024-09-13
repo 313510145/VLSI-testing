@@ -6,6 +6,56 @@ using namespace std;
 
 extern GetLongOpt option;
 
+double CIRCUIT::AverageNo_Fanout() {
+    unsigned int fanout_num = 0;
+    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+        fanout_num += (*it)->No_Fanout();
+    }
+    return static_cast<double>(fanout_num) / this->Netlist.size();
+}
+
+void CIRCUIT::PrintEachGate() {
+    cout << "all gates:" << endl;
+    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+        cout << "\tname: " << (*it)->GetName()
+             << ", level: " << (*it)->GetLevel()
+             << ", function: " << (*it)->GetFunction()
+             << ", fanin: " << (*it)->No_Fanin()
+             << ", fanout: " << (*it)->No_Fanout()
+             << endl;
+    }
+}
+
+void CIRCUIT::PrintNo_GateEachType() {
+    unsigned int gate_num[G_BAD] = {0};
+    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+        gate_num[(*it)->GetFunction()]++;
+    }
+    cout << "total number of gates including inverter, or, nor, and, nand: " << gate_num[G_NOT] + gate_num[G_OR] + gate_num[G_NOR] + gate_num[G_AND] + gate_num[G_NAND] << endl
+         << "number of gates for each type:" << endl;
+    for (unsigned int i = 0; i < G_BAD; i++) {
+        cout << "\t" << GATENAME[i] << ": " << gate_num[i] << endl;
+    }
+}
+
+void CIRCUIT::PrintNo_Net() {
+    unsigned int signal_net_num = 0, branch_net_num = 0, stem_net_num = 0;
+    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+        unsigned int temp = (*it)->No_Fanout();
+        if (temp > 1) {
+            signal_net_num += temp + 1;
+            branch_net_num += temp;
+            stem_net_num++;
+        }
+        else {
+            signal_net_num += temp;
+        }
+    }
+    cout << "total number of signal nets: " << signal_net_num << endl
+         << "\tnumber of branch nets: " << branch_net_num << endl
+         << "\tnumber of stem nets: " << stem_net_num << endl;
+}
+
 void CIRCUIT::FanoutList()
 {
     unsigned i = 0, j;

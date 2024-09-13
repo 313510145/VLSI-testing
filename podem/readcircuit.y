@@ -10,7 +10,7 @@
 using namespace std;
         
 extern  int yylex(void); 
-int yyerror(char *err);
+int yyerror(const char *err);
 bool ParseError=false;
 
 extern long lineno;   /* All defined in readcircuit.l */
@@ -219,7 +219,7 @@ fanin_list:
 
 %%
 
-int yyerror(char *err)
+int yyerror(const char *err)
 {
         cout << err << endl;
         cout << "\t Parsing error in line " << lineno << " at " << yytext << endl;

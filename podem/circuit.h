@@ -71,6 +71,8 @@ class CIRCUIT
         unsigned No_PPI() { return PPIlist.size(); }
         unsigned No_PPO() { return PPOlist.size(); }
 
+        double AverageNo_Fanout();
+
         void InitPattern(const char *pattern) {
             Pattern.Initialize(const_cast<char *>(pattern), PIlist.size(), "PI");
         }
@@ -82,6 +84,10 @@ class CIRCUIT
                 Queue[gptr->GetLevel()].push_back(gptr);
             }
         }
+
+        void PrintEachGate();
+        void PrintNo_GateEachType();
+        void PrintNo_Net();
 
         //defined in circuit.cc
         void Levelize();

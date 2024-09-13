@@ -1,11 +1,10 @@
+.PHONY: all clean
 
-CXX      = g++
-LINK     = g++
-CXXFLAGS = -O2 -Wall -DDEBUG
-#CXXFLAGS = -g -DDEBUG_ATPG -Wall #Turn on debugging
-INCPATH  =
-LIBS     = -lreadline -lcurses
-DEL_FILE = rm -f
+CXX = g++
+LINKER = g++
+CXX_FLAG = -O2 -Wall -DDEBUG -DDEBUG_ATPG -g
+INCLUDE_PATH =
+LIBRARY = -lreadline -lcurses
 
 ####### Files
 
@@ -15,23 +14,23 @@ SOURCES = readcircuit.tab.cc lex.yy.cc circuit.cc main.cc GetLongOpt.cc atpg.cc 
 
 OBJECTS = readcircuit.tab.o lex.yy.o circuit.o main.o GetLongOpt.o atpg.o fsim.o sim.o psim.o stfsim.o tfatpg.o
 
-TARGET  = atpg
+TARGET = atpg
 
 ####### Implicit rules
 
 .SUFFIXES: .o .cpp .cc .cxx
 
 .cpp.o:
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<
+	$(CXX) -c $(CXX_FLAG) $(INCLUDE_PATH) -o $@ $<
 
 .cc.o:
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<
+	$(CXX) -c $(CXX_FLAG) $(INCLUDE_PATH) -o $@ $<
 
 ####### Build rules
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(LINK) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) $(LIBS) $(INCPATH)
+	$(LINKER) $(CXX_FLAG) -o $(TARGET) $(OBJECTS) $(LIBRARY) $(INCLUDE_PATH)
 
 $(OBJECTS): $(HEADERS) Makefile
 
@@ -44,6 +43,7 @@ lex.yy.cc: readcircuit.l readcircuit.y
 	mv lex.yy.c lex.yy.cc
 
 clean:
-	@$(DEL_FILE) $(OBJECTS) $(TARGET)
-	@$(DEL_FILE) readcircuit.tab.cc readcircuit.tab.h lex.yy.cc
+	rm -rf $(OBJECTS) $(TARGET)
+	rm -rf readcircuit.tab.cc readcircuit.tab.h lex.yy.cc
+
 

@@ -37,6 +37,8 @@ int SetupOption(int argc, char ** argv)
             "set the output pattern file", 0);
     option.enroll("bt", GetLongOpt::OptionalValue,
             "set the backtrack limit", 0);
+    option.enroll("ass0", GetLongOpt::NoValue,
+            "assignment 0", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -119,7 +121,15 @@ int main(int argc, char ** argv)
             Circuit.InitPattern(option.retrieve("input"));
             Circuit.FaultSimVectors();
         }
-
+        else if (option.retrieve("ass0")) {
+            cout << "number of inputs: " << Circuit.No_PI() << endl
+                 << "number of outputs: " << Circuit.No_PO() << endl;
+            Circuit.PrintNo_GateEachType();
+            // Circuit.PrintEachGate();
+            cout << "number of flip-flops (PPIs): " << Circuit.No_PPI() << endl;
+            Circuit.PrintNo_Net();
+            cout << "average number of fanouts of each gate (all types): " << Circuit.AverageNo_Fanout() << endl;
+        }
         else {
             if (option.retrieve("bt")) {
                 Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
