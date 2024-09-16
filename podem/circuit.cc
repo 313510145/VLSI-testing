@@ -1,4 +1,5 @@
 #include <iostream> 
+#include <stack>
 //#include <alg.h>
 #include "circuit.h"
 #include "GetLongOpt.h"
@@ -22,6 +23,7 @@ void CIRCUIT::PrintEachGate() {
              << ", function: " << (*it)->GetFunction()
              << ", fanin: " << (*it)->No_Fanin()
              << ", fanout: " << (*it)->No_Fanout()
+             << ", to primary output: " << (((*it)->GetFlag(TO_PRIMARY_OUTPUT)) ? "Y" : "N")
              << endl;
     }
 }
@@ -54,6 +56,71 @@ void CIRCUIT::PrintNo_Net() {
     cout << "total number of signal nets: " << signal_net_num << endl
          << "\tnumber of branch nets: " << branch_net_num << endl
          << "\tnumber of stem nets: " << stem_net_num << endl;
+}
+
+void CIRCUIT::PrintAllPath(const char* const start, const char* const end) {
+    GATE *start_gate = nullptr, *end_gate = nullptr;
+    for (unsigned int i = 0; i < this->PIlist.size(); i++) {
+        if (this->PIGate(i)->GetName() == start) {
+            start_gate = this->PIGate(i);
+            break;
+        }
+    }
+    for (unsigned int i = 0; i < this->POlist.size(); i++) {
+        if (this->POGate(i)->GetName() == end) {
+            end_gate = this->POGate(i);
+            break;
+        }
+    }
+    if (start_gate != nullptr && end_gate != nullptr) {
+        end_gate->SetFlag(TO_PRIMARY_OUTPUT);
+        for (unsigned int i = 0; i < end_gate->GetLevel(); i++) {
+            for (unsigned int j = 0; j < this->No_Gate(); j++) {
+                if (!this->Gate(j)->GetFlag(TO_PRIMARY_OUTPUT)) {
+                    for (unsigned int k = 0; k < this->Gate(j)->No_Fanout(); k++) {
+                        if (this->Gate(j)->Fanout(k)->GetFlag(TO_PRIMARY_OUTPUT)) {
+                            this->Gate(j)->SetFlag(TO_PRIMARY_OUTPUT);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        std::stack<GATE*> process_stack;
+        std::stack<std::string> path_stack;
+        process_stack.push(start_gate);
+        path_stack.push("");
+        int path_num = 0;
+        GATE* now_gate;
+        string now_path, gate_name;
+        while (!process_stack.empty()) {
+            now_gate = process_stack.top();
+            process_stack.pop();
+            now_path = path_stack.top();
+            path_stack.pop();
+            gate_name = now_gate->GetName();
+            int fanout = now_gate->No_Fanout();
+            if (fanout > 0) {
+                for (int i = 0; i < fanout; i++) {
+                    if (now_gate->Fanout(i)->GetFlag(TO_PRIMARY_OUTPUT)) {
+                        process_stack.push(now_gate->Fanout(i));
+                        path_stack.push(now_path + " " + gate_name);
+                    }
+                }
+            }
+            else {
+                cout << now_path.substr(1, now_path.length() - 1) + " " + gate_name << "\n";
+                path_num++;
+            }
+        }
+        cout << "The paths from " << start << " to " << end << ": " << path_num << endl;
+        // PrintEachGate();
+        for (unsigned int i = 0; i < this->No_Gate(); i++) {
+            if (this->Gate(i)->GetFlag(TO_PRIMARY_OUTPUT)) {
+                this->Gate(i)->ResetFlag(TO_PRIMARY_OUTPUT);
+            }
+        }
+    }
 }
 
 void CIRCUIT::FanoutList()

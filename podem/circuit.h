@@ -88,6 +88,7 @@ class CIRCUIT
         void PrintEachGate();
         void PrintNo_GateEachType();
         void PrintNo_Net();
+        void PrintAllPath(const char* const start, const char* const end);
 
         //defined in circuit.cc
         void Levelize();

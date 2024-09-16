@@ -1,7 +1,6 @@
 .PHONY: all clean
 
 CXX = g++
-LINKER = g++
 CXX_FLAG = -O2 -Wall -DDEBUG -DDEBUG_ATPG -g
 INCLUDE_PATH =
 LIBRARY = -lreadline -lcurses
@@ -30,7 +29,7 @@ TARGET = atpg
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(LINKER) $(CXX_FLAG) -o $(TARGET) $(OBJECTS) $(LIBRARY) $(INCLUDE_PATH)
+	$(CXX) $(CXX_FLAG) -o $(TARGET) $(OBJECTS) $(LIBRARY) $(INCLUDE_PATH)
 
 $(OBJECTS): $(HEADERS) Makefile
 
@@ -45,5 +44,3 @@ lex.yy.cc: readcircuit.l readcircuit.y
 clean:
 	rm -rf $(OBJECTS) $(TARGET)
 	rm -rf readcircuit.tab.cc readcircuit.tab.h lex.yy.cc
-
-

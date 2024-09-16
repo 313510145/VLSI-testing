@@ -39,6 +39,12 @@ int SetupOption(int argc, char ** argv)
             "set the backtrack limit", 0);
     option.enroll("ass0", GetLongOpt::NoValue,
             "assignment 0", 0);
+    option.enroll("path", GetLongOpt::NoValue,
+            "assignment 1", 0);
+    option.enroll("start", GetLongOpt::MandatoryValue,
+            "set the primary input", 0);
+    option.enroll("end", GetLongOpt::MandatoryValue,
+            "set the primary output", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -125,10 +131,12 @@ int main(int argc, char ** argv)
             cout << "number of inputs: " << Circuit.No_PI() << endl
                  << "number of outputs: " << Circuit.No_PO() << endl;
             Circuit.PrintNo_GateEachType();
-            // Circuit.PrintEachGate();
             cout << "number of flip-flops (PPIs): " << Circuit.No_PPI() << endl;
             Circuit.PrintNo_Net();
             cout << "average number of fanouts of each gate (all types): " << Circuit.AverageNo_Fanout() << endl;
+        }
+        else if (option.retrieve("path")) {
+            Circuit.PrintAllPath(option.retrieve("start"), option.retrieve("end"));
         }
         else {
             if (option.retrieve("bt")) {
