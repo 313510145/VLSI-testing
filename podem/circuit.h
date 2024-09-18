@@ -114,6 +114,7 @@ class CIRCUIT
         void ModifiedLogicSim();
         void PrintIO();
         VALUE Evaluate(GATEPTR gptr);
+        VALUE ModifiedEvaluate(GATEPTR gptr);
 
         //defined in atpg.cc
         void GenerateAllFaultList();

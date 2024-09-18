@@ -142,6 +142,7 @@ int main(int argc, char ** argv)
     }
     else if (option.retrieve("mod_logicsim")) {
         Circuit.InitPattern(option.retrieve("input"));
+        Circuit.ModifiedLogicSimVectors();
     }
     else {
         Circuit.GenerateAllFaultList();

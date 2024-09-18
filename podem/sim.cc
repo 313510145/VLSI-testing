@@ -29,6 +29,7 @@ void CIRCUIT::ModifiedLogicSimVectors() {
         Pattern.ReadNextPattern();
         SchedulePI();
         ModifiedLogicSim();
+        PrintIO();
     }
 }
 
@@ -53,6 +54,20 @@ void CIRCUIT::LogicSim()
 }
 
 void CIRCUIT::ModifiedLogicSim() {
+    GATE* gptr;
+    VALUE new_value;
+    for (unsigned int i = 0; i <= this->MaxLevel; i++) {
+        while (!Queue[i].empty()) {
+            gptr = Queue[i].front();
+            Queue[i].pop_front();
+            gptr->ResetFlag(SCHEDULED);
+            new_value = ModifiedEvaluate(gptr);
+            if (new_value != gptr->GetValue()) {
+                gptr->SetValue(new_value);
+                ScheduleFanout(gptr);
+            }
+        }
+    }
 }
 
 //Used only in the first pattern
@@ -133,6 +148,37 @@ VALUE CIRCUIT::Evaluate(GATEPTR gptr)
     }
     //NAND, NOR and NOT
     if (gptr->Is_Inversion()) { value = NotTable[value]; }
+    return value;
+}
+
+VALUE CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
+    GATEFUNC fun(gptr->GetFunction());
+    VALUE cv(CV[fun]); //controling value
+    VALUE value(gptr->Fanin(0)->GetValue());
+    switch (fun) {
+        case G_AND:
+        case G_NAND:
+            for (unsigned int i = 1; i < gptr->No_Fanin() && value != cv; i++) {
+                value = static_cast<VALUE>(value & gptr->Fanin(i)->GetValue());
+            }
+            break;
+        case G_OR:
+        case G_NOR:
+            for (unsigned int i = 1; i < gptr->No_Fanin() && value != cv; i++) {
+                value = static_cast<VALUE>(value | gptr->Fanin(i)->GetValue());
+            }
+            break;
+        default: break;
+    }
+    //NAND, NOR and NOT
+    if (gptr->Is_Inversion()) {
+        if (value < X) {
+            value = static_cast<VALUE>(S1 - value + S0);
+        }
+        else if (value > X && value < ILLIGAL) {
+            value = static_cast<VALUE>(B - value + D);
+        }
+    }
     return value;
 }
 
