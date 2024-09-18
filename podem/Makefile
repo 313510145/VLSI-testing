@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CXX = g++
-CXX_FLAG = -O2 -Wall -DDEBUG -DDEBUG_ATPG -g
+CXX_FLAG = -O2 -Wall -DDEBUG -DDEBUG_ATPG -g -std=c++11
 INCLUDE_PATH =
 LIBRARY = -lreadline -lcurses
 
