@@ -16,6 +16,7 @@ class PATTERN
         void Initialize(char* InFileName, int no_pi, string TAG);
         //Assign next input pattern to PI
         void ReadNextPattern();
+        void ModifiedReadNextPattern();
         void ReadNextPattern_t();
 	void ReadNextPattern(unsigned idx);
         bool eof()

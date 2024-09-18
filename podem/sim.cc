@@ -26,10 +26,10 @@ void CIRCUIT::LogicSimVectors()
 void CIRCUIT::ModifiedLogicSimVectors() {
     cout << "Run modified logic simulation" << endl;
     while (!Pattern.eof()) {
-        Pattern.ReadNextPattern();
+        Pattern.ModifiedReadNextPattern();
         SchedulePI();
         ModifiedLogicSim();
-        PrintIO();
+        ModifiedPrintIO();
     }
 }
 
@@ -55,15 +55,15 @@ void CIRCUIT::LogicSim()
 
 void CIRCUIT::ModifiedLogicSim() {
     GATE* gptr;
-    VALUE new_value;
+    bitset<2> new_value_3;
     for (unsigned int i = 0; i <= this->MaxLevel; i++) {
         while (!Queue[i].empty()) {
             gptr = Queue[i].front();
             Queue[i].pop_front();
             gptr->ResetFlag(SCHEDULED);
-            new_value = ModifiedEvaluate(gptr);
-            if (new_value != gptr->GetValue()) {
-                gptr->SetValue(new_value);
+            new_value_3 = ModifiedEvaluate(gptr);
+            if (new_value_3 != gptr->GetValue_3()) {
+                gptr->SetValue_3(new_value_3);
                 ScheduleFanout(gptr);
             }
         }
@@ -151,35 +151,32 @@ VALUE CIRCUIT::Evaluate(GATEPTR gptr)
     return value;
 }
 
-VALUE CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
+bitset<2> CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
     GATEFUNC fun(gptr->GetFunction());
     VALUE cv(CV[fun]); //controling value
-    VALUE value(gptr->Fanin(0)->GetValue());
+    bitset<2> value_3(gptr->Fanin(0)->GetValue_3());
     switch (fun) {
         case G_AND:
         case G_NAND:
-            for (unsigned int i = 1; i < gptr->No_Fanin() && value != cv; i++) {
-                value = static_cast<VALUE>(value & gptr->Fanin(i)->GetValue());
+            for (unsigned int i = 1; i < gptr->No_Fanin() && value_3 != cv; i++) {
+                value_3 = value_3 & gptr->Fanin(i)->GetValue_3();
             }
             break;
         case G_OR:
         case G_NOR:
-            for (unsigned int i = 1; i < gptr->No_Fanin() && value != cv; i++) {
-                value = static_cast<VALUE>(value | gptr->Fanin(i)->GetValue());
+            for (unsigned int i = 1; i < gptr->No_Fanin() && value_3 != cv; i++) {
+                value_3 = value_3 | gptr->Fanin(i)->GetValue_3();
             }
             break;
         default: break;
     }
     //NAND, NOR and NOT
     if (gptr->Is_Inversion()) {
-        if (value < X) {
-            value = static_cast<VALUE>(S1 - value + S0);
-        }
-        else if (value > X && value < ILLIGAL) {
-            value = static_cast<VALUE>(B - value + D);
+        if (value_3.to_string() == "00" || value_3.to_string() == "11") {
+            value_3 = ~value_3;
         }
     }
-    return value;
+    return value_3;
 }
 
 extern GATE* NameToGate(string);
@@ -240,12 +237,75 @@ void PATTERN::ReadNextPattern()
     return;
 }
 
+void PATTERN::ModifiedReadNextPattern()
+{
+    char V;
+    for (int i = 0;i < no_pi_infile;i++) {
+        patterninput >> V;
+        if (V == '0') {
+            if (inlist[i]->GetValue_3().to_string() != "00") {
+                inlist[i]->SetFlag(SCHEDULED);
+                inlist[i]->SetValue_3(stoi("00"));
+            }
+        }
+        else if (V == '1') {
+            if (inlist[i]->GetValue_3().to_string() != "11") {
+                inlist[i]->SetFlag(SCHEDULED);
+                inlist[i]->SetValue_3(stoi("11"));
+            }
+        }
+        else if (V == 'X') {
+            if (inlist[i]->GetValue_3().to_string() != "01") {
+                inlist[i]->SetFlag(SCHEDULED);
+                inlist[i]->SetValue_3(stoi("01"));
+            }
+        }
+    }
+    //Take care of newline to force eof() function correctly
+    patterninput >> V;
+    if (!patterninput.eof()) patterninput.unget();
+    return;
+}
+
 void CIRCUIT::PrintIO()
 {
     register unsigned i;
     for (i = 0;i<No_PI();++i) { cout << PIGate(i)->GetValue(); }
     cout << " ";
     for (i = 0;i<No_PO();++i) { cout << POGate(i)->GetValue(); }
+    cout << endl;
+    return;
+}
+
+void CIRCUIT::ModifiedPrintIO()
+{
+    register unsigned i;
+    string s;
+    for (i = 0; i < No_PI(); i++) {
+        s = PIGate(i)->GetValue_3().to_string();
+        if (s == "00") {
+            cout << 0;
+        }
+        else if (s == "11") {
+            cout << 1;
+        }
+        else {
+            cout << "X";
+        }
+    }
+    cout << " ";
+    for (i = 0; i < No_PO(); i++) {
+        s = POGate(i)->GetValue_3().to_string();
+        if (s == "00") {
+            cout << 0;
+        }
+        else if (s == "11") {
+            cout << 1;
+        }
+        else {
+            cout << "X";
+        }
+    }
     cout << endl;
     return;
 }

@@ -16,6 +16,7 @@ class GATE
         unsigned Level;
         VALUE Value;
         VALUE Value_t;
+        bitset<2> Value_3;
         bool Inversion;
         //Utility variable
         unsigned Count[2]; //used by Levelize(), FindStaticPivot(),PathSearch
@@ -25,7 +26,7 @@ class GATE
         bitset<PatternNum> FaultFlag;
     public:
         //Initialize GATE
-        GATE(): Function(G_BAD), Level(0), Value(X), Value_t(X), Inversion(false) {
+        GATE(): Function(G_BAD), Level(0), Value(X), Value_t(X), Value_3(stoi("10")), Inversion(false) {
             Input_list.reserve(4);
             Output_list.reserve(4);
             Count[0] = (0);
@@ -42,6 +43,7 @@ class GATE
         void AddOutput_list(GATE* gptr){Output_list.push_back(gptr);}
         void SetLevel(unsigned l){ Level = l;}
         void SetValue(VALUE v) {Value = v;}
+        void SetValue_3(bitset<2> v) {Value_3 = v;}
         void InverseValue() {Value = NotTable[Value];}
         void SetValue_t(VALUE v) {Value_t = v;}
         void InverseValue_t() {Value_t = NotTable[Value_t];}
@@ -62,6 +64,7 @@ class GATE
         unsigned GetLevel() { return Level;}
         VALUE GetValue() { return Value;}
         VALUE GetValue_t() { return Value_t;}
+        bitset<2> GetValue_3() { return Value_3;}
         void SetInversion(){Inversion = true;}
         void UnSetInversion(){Inversion = false;}
         void SetFlag(FLAGS f) { Flag.set(f); }
