@@ -30,6 +30,11 @@ class CIRCUIT
         ListofGate PropagateTree;
         ListofGateIte QueueIte;
 
+        vector<GATE*> PathStack;
+        unsigned int PI_PO_path_num;
+        bool FindPath();
+        GATE* end_gate;
+
     public:
         //Initialize netlist
         CIRCUIT(): MaxLevel(0), BackTrackLimit(10000) {
@@ -85,10 +90,10 @@ class CIRCUIT
             }
         }
 
-        void PrintEachGate();
         void PrintNo_GateEachType();
         void PrintNo_Net();
         void PrintAllPath(const char* const start, const char* const end);
+        void GenerateRandomPattern(const char* const num, const char* const output, const bool& unknown);
 
         //defined in circuit.cc
         void Levelize();
@@ -104,7 +109,9 @@ class CIRCUIT
         void SchedulePI();
         void SchedulePPI();
         void LogicSimVectors();
+        void ModifiedLogicSimVectors();
         void LogicSim();
+        void ModifiedLogicSim();
         void PrintIO();
         VALUE Evaluate(GATEPTR gptr);
 

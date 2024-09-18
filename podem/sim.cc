@@ -23,6 +23,15 @@ void CIRCUIT::LogicSimVectors()
     return;
 }
 
+void CIRCUIT::ModifiedLogicSimVectors() {
+    cout << "Run modified logic simulation" << endl;
+    while (!Pattern.eof()) {
+        Pattern.ReadNextPattern();
+        SchedulePI();
+        ModifiedLogicSim();
+    }
+}
+
 //do event-driven logic simulation
 void CIRCUIT::LogicSim()
 {
@@ -41,6 +50,9 @@ void CIRCUIT::LogicSim()
         }
     }
     return;
+}
+
+void CIRCUIT::ModifiedLogicSim() {
 }
 
 //Used only in the first pattern

@@ -7,25 +7,45 @@ using namespace std;
 
 extern GetLongOpt option;
 
+bool CIRCUIT::FindPath() {
+    GATE* current_gate = this->PathStack.back();
+    if (current_gate == this->end_gate) {
+        for (vector<GATE*>::iterator it = this->PathStack.begin(); it != this->PathStack.end(); it++) {
+            if (it != this->PathStack.begin()) {
+                cout << " ";
+            }
+            cout << (*it)->GetName();
+        }
+        cout << endl;
+        this->PathStack.pop_back();
+        this->PI_PO_path_num++;
+        return true;
+    }
+    bool path_found = false;
+    GATE* next_gate;
+    for (unsigned int i = 0; i < current_gate->No_Fanout(); i++) {
+        next_gate = current_gate->Fanout(i);
+        if (!next_gate->GetFlag(NOT_IN_PATH)) {
+            this->PathStack.push_back(next_gate);
+            bool temp = FindPath();
+            if (!path_found) {
+                path_found = temp;
+            }
+        }
+    }
+    if (!path_found) {
+        current_gate->SetFlag(NOT_IN_PATH);
+    }
+    this->PathStack.pop_back();
+    return path_found;
+}
+
 double CIRCUIT::AverageNo_Fanout() {
     unsigned int fanout_num = 0;
     for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
         fanout_num += (*it)->No_Fanout();
     }
     return static_cast<double>(fanout_num) / this->Netlist.size();
-}
-
-void CIRCUIT::PrintEachGate() {
-    cout << "all gates:" << endl;
-    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
-        cout << "\tname: " << (*it)->GetName()
-             << ", level: " << (*it)->GetLevel()
-             << ", function: " << (*it)->GetFunction()
-             << ", fanin: " << (*it)->No_Fanin()
-             << ", fanout: " << (*it)->No_Fanout()
-             << ", to primary output: " << (((*it)->GetFlag(TO_PRIMARY_OUTPUT)) ? "Y" : "N")
-             << endl;
-    }
 }
 
 void CIRCUIT::PrintNo_GateEachType() {
@@ -59,7 +79,7 @@ void CIRCUIT::PrintNo_Net() {
 }
 
 void CIRCUIT::PrintAllPath(const char* const start, const char* const end) {
-    GATE *start_gate = nullptr, *end_gate = nullptr;
+    GATE *start_gate = nullptr;
     for (unsigned int i = 0; i < this->PIlist.size(); i++) {
         if (this->PIGate(i)->GetName() == start) {
             start_gate = this->PIGate(i);
@@ -68,59 +88,64 @@ void CIRCUIT::PrintAllPath(const char* const start, const char* const end) {
     }
     for (unsigned int i = 0; i < this->POlist.size(); i++) {
         if (this->POGate(i)->GetName() == end) {
-            end_gate = this->POGate(i);
+            this->end_gate = this->POGate(i);
             break;
         }
     }
-    if (start_gate != nullptr && end_gate != nullptr) {
-        end_gate->SetFlag(TO_PRIMARY_OUTPUT);
-        for (unsigned int i = 0; i < end_gate->GetLevel(); i++) {
-            for (unsigned int j = 0; j < this->No_Gate(); j++) {
-                if (!this->Gate(j)->GetFlag(TO_PRIMARY_OUTPUT)) {
-                    for (unsigned int k = 0; k < this->Gate(j)->No_Fanout(); k++) {
-                        if (this->Gate(j)->Fanout(k)->GetFlag(TO_PRIMARY_OUTPUT)) {
-                            this->Gate(j)->SetFlag(TO_PRIMARY_OUTPUT);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        std::stack<GATE*> process_stack;
-        std::stack<std::string> path_stack;
-        process_stack.push(start_gate);
-        path_stack.push("");
-        int path_num = 0;
-        GATE* now_gate;
-        string now_path, gate_name;
-        while (!process_stack.empty()) {
-            now_gate = process_stack.top();
-            process_stack.pop();
-            now_path = path_stack.top();
-            path_stack.pop();
-            gate_name = now_gate->GetName();
-            int fanout = now_gate->No_Fanout();
-            if (fanout > 0) {
-                for (int i = 0; i < fanout; i++) {
-                    if (now_gate->Fanout(i)->GetFlag(TO_PRIMARY_OUTPUT)) {
-                        process_stack.push(now_gate->Fanout(i));
-                        path_stack.push(now_path + " " + gate_name);
-                    }
-                }
-            }
-            else {
-                cout << now_path.substr(1, now_path.length() - 1) + " " + gate_name << "\n";
-                path_num++;
-            }
-        }
-        cout << "The paths from " << start << " to " << end << ": " << path_num << endl;
-        // PrintEachGate();
-        for (unsigned int i = 0; i < this->No_Gate(); i++) {
-            if (this->Gate(i)->GetFlag(TO_PRIMARY_OUTPUT)) {
-                this->Gate(i)->ResetFlag(TO_PRIMARY_OUTPUT);
+    if (start_gate != nullptr && this->end_gate != nullptr) {
+        this->PathStack.push_back(start_gate);
+        this->PI_PO_path_num = 0;
+        FindPath();
+        cout << "The paths from " << start << " to " << end << ": " << this->PI_PO_path_num << endl;
+        for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+            if ((*it)->GetFlag(NOT_IN_PATH)) {
+                (*it)->ResetFlag(NOT_IN_PATH);
             }
         }
     }
+}
+
+void CIRCUIT::GenerateRandomPattern(const char* const num, const char* const output, const bool& unknown) {
+    ofstream output_file(output);
+    if (!output_file) {
+        cout << "Can't open pattern file: " << output << endl;
+        exit(-1);
+    }
+    srand(time(NULL));
+    for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
+        if (it == this->PIlist.begin()) {
+            output_file << "PI " << (*it)->GetName();
+        }
+        else {
+            output_file << " PI " << (*it)->GetName();
+        }
+    }
+    output_file << endl;
+    int n = stoi(num);
+    if (unknown) {
+        for (int i = 0; i < n; i++) {
+            for (unsigned int j = 0; j < this->PIlist.size(); j++) {
+                int r = 3.0 * rand() / (RAND_MAX + 1.0);
+                if (r > 1) {
+                    output_file << "X";
+                }
+                else {
+                    output_file << r;
+                }
+            }
+            output_file << endl;
+        }
+    }
+    else {
+        for (int i = 0; i < n; i++) {
+            for (unsigned int j = 0; j < this->PIlist.size(); j++) {
+                int r = 2.0 * rand() / (RAND_MAX + 1.0);
+                output_file << r;
+            }
+            output_file << endl;
+        }
+    }
+    output_file.close();
 }
 
 void CIRCUIT::FanoutList()

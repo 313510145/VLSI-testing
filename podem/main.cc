@@ -45,6 +45,14 @@ int SetupOption(int argc, char ** argv)
             "set the primary input", 0);
     option.enroll("end", GetLongOpt::MandatoryValue,
             "set the primary output", 0);
+    option.enroll("pattern", GetLongOpt::NoValue,
+            "assignment 2", 0);
+    option.enroll("num", GetLongOpt::MandatoryValue,
+            "set the number of random patterns", 0);
+    option.enroll("unknown", GetLongOpt::NoValue,
+            "consider unknown values", 0);
+    option.enroll("mod_logicsim", GetLongOpt::NoValue,
+            "assignment 2", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -118,6 +126,23 @@ int main(int argc, char ** argv)
         }
         Circuit.TFAtpg();
     }
+    else if (option.retrieve("ass0")) {
+        cout << "number of inputs: " << Circuit.No_PI() << endl
+                << "number of outputs: " << Circuit.No_PO() << endl;
+        Circuit.PrintNo_GateEachType();
+        cout << "number of flip-flops (PPIs): " << Circuit.No_PPI() << endl;
+        Circuit.PrintNo_Net();
+        cout << "average number of fanouts of each gate (all types): " << Circuit.AverageNo_Fanout() << endl;
+    }
+    else if (option.retrieve("path")) {
+        Circuit.PrintAllPath(option.retrieve("start"), option.retrieve("end"));
+    }
+    else if (option.retrieve("pattern")) {
+        Circuit.GenerateRandomPattern(option.retrieve("num"), option.retrieve("output"), option.retrieve("unknown"));
+    }
+    else if (option.retrieve("mod_logicsim")) {
+        Circuit.InitPattern(option.retrieve("input"));
+    }
     else {
         Circuit.GenerateAllFaultList();
         Circuit.SortFaninByLevel();
@@ -126,17 +151,6 @@ int main(int argc, char ** argv)
             //stuck-at fault simulator
             Circuit.InitPattern(option.retrieve("input"));
             Circuit.FaultSimVectors();
-        }
-        else if (option.retrieve("ass0")) {
-            cout << "number of inputs: " << Circuit.No_PI() << endl
-                 << "number of outputs: " << Circuit.No_PO() << endl;
-            Circuit.PrintNo_GateEachType();
-            cout << "number of flip-flops (PPIs): " << Circuit.No_PPI() << endl;
-            Circuit.PrintNo_Net();
-            cout << "average number of fanouts of each gate (all types): " << Circuit.AverageNo_Fanout() << endl;
-        }
-        else if (option.retrieve("path")) {
-            Circuit.PrintAllPath(option.retrieve("start"), option.retrieve("end"));
         }
         else {
             if (option.retrieve("bt")) {
