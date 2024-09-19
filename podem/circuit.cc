@@ -113,12 +113,10 @@ void CIRCUIT::GenerateRandomPattern(const char* const num, const char* const out
     }
     srand(time(NULL));
     for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
-        if (it == this->PIlist.begin()) {
-            output_file << "PI " << (*it)->GetName();
+        if (it != this->PIlist.begin()) {
+            output_file << " ";
         }
-        else {
-            output_file << " PI " << (*it)->GetName();
-        }
+        output_file << "PI " << (*it)->GetName();
     }
     output_file << endl;
     int n = stoi(num);

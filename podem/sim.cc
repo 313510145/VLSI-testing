@@ -153,18 +153,18 @@ VALUE CIRCUIT::Evaluate(GATEPTR gptr)
 
 bitset<2> CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
     GATEFUNC fun(gptr->GetFunction());
-    VALUE cv(CV[fun]); //controling value
+    bitset<2> cv_3(CV_3[fun]); //controling value
     bitset<2> value_3(gptr->Fanin(0)->GetValue_3());
     switch (fun) {
         case G_AND:
         case G_NAND:
-            for (unsigned int i = 1; i < gptr->No_Fanin() && value_3 != cv; i++) {
+            for (unsigned int i = 1; i < gptr->No_Fanin() && value_3 != cv_3; i++) {
                 value_3 = value_3 & gptr->Fanin(i)->GetValue_3();
             }
             break;
         case G_OR:
         case G_NOR:
-            for (unsigned int i = 1; i < gptr->No_Fanin() && value_3 != cv; i++) {
+            for (unsigned int i = 1; i < gptr->No_Fanin() && value_3 != cv_3; i++) {
                 value_3 = value_3 | gptr->Fanin(i)->GetValue_3();
             }
             break;
@@ -290,7 +290,7 @@ void CIRCUIT::ModifiedPrintIO()
             cout << 1;
         }
         else {
-            cout << "X";
+            cout << 2;
         }
     }
     cout << " ";
@@ -303,7 +303,7 @@ void CIRCUIT::ModifiedPrintIO()
             cout << 1;
         }
         else {
-            cout << "X";
+            cout << 2;
         }
     }
     cout << endl;

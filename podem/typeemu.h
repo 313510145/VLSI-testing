@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <bitset>
 
 enum VALUE {S0, S1, X, D, B, ILLIGAL};
 //good/faulty D = 1/0, B = D' = 0/1
@@ -12,7 +13,8 @@ enum ATPG_STATUS { TRUE, CONFLICT, FALSE };
 enum FAULT_STATUS { UNKNOWN, DETECTED, REDUNDANT, ABORT };
 
 //Controlling Values
-const VALUE CV[] = {X, X, X, X, X, S0, S0, S1, S1, X, X, X};
+const VALUE CV[]            = {              X,               X,               X,               X,               X,              S0,              S0,              S1,              S1,               X,               X,               X};
+const std::bitset<2> CV_3[] = {std::stoi("01"), std::stoi("01"), std::stoi("01"), std::stoi("01"), std::stoi("01"), std::stoi("00"), std::stoi("00"), std::stoi("11"), std::stoi("11"), std::stoi("01"), std::stoi("01"), std::stoi("01")};
 //Noncontrolling Values
 const VALUE NCV[] = {X, X, X, X, X, S1, S1, S0, S0, X, X, X};
 
