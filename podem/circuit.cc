@@ -10,13 +10,13 @@ extern GetLongOpt option;
 bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const string& es) {
     GATE* current_gate = ps.back();
     if (current_gate->GetName() == es) {
-        // for (vector<GATE*>::iterator it = ps.begin(); it != ps.end(); it++) {
-        //     if (it != ps.begin()) {
-        //         cout << " ";
-        //     }
-        //     cout << (*it)->GetName();
-        // }
-        // cout << endl;
+        for (vector<GATE*>::iterator it = ps.begin(); it != ps.end(); it++) {
+            if (it != ps.begin()) {
+                cout << " ";
+            }
+            cout << (*it)->GetName();
+        }
+        cout << endl;
         ps.pop_back();
         pn++;
         return true;
