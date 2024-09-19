@@ -2,7 +2,6 @@
 #include <string>
 #include <vector>
 #include <list>
-#include <bitset>
 
 enum VALUE {S0, S1, X, D, B, ILLIGAL};
 enum VALUE_3 {S0_3 = 0b00, X_3 = 0b01, S1_3 = 0b11};
