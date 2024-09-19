@@ -172,7 +172,7 @@ bitset<2> CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
     }
     //NAND, NOR and NOT
     if (gptr->Is_Inversion()) {
-        if (value_3.to_string() == "00" || value_3.to_string() == "11") {
+        if (value_3 == S0_3 || value_3 == S1_3) {
             value_3 = ~value_3;
         }
     }
@@ -243,21 +243,21 @@ void PATTERN::ModifiedReadNextPattern()
     for (int i = 0;i < no_pi_infile;i++) {
         patterninput >> V;
         if (V == '0') {
-            if (inlist[i]->GetValue_3().to_string() != "00") {
+            if (inlist[i]->GetValue_3() != S0_3) {
                 inlist[i]->SetFlag(SCHEDULED);
-                inlist[i]->SetValue_3(stoi("00"));
+                inlist[i]->SetValue_3(S0_3);
             }
         }
         else if (V == '1') {
-            if (inlist[i]->GetValue_3().to_string() != "11") {
+            if (inlist[i]->GetValue_3() != S1_3) {
                 inlist[i]->SetFlag(SCHEDULED);
-                inlist[i]->SetValue_3(stoi("11"));
+                inlist[i]->SetValue_3(S1_3);
             }
         }
         else if (V == 'X') {
-            if (inlist[i]->GetValue_3().to_string() != "01") {
+            if (inlist[i]->GetValue_3() != X_3) {
                 inlist[i]->SetFlag(SCHEDULED);
-                inlist[i]->SetValue_3(stoi("01"));
+                inlist[i]->SetValue_3(X_3);
             }
         }
     }
@@ -280,13 +280,13 @@ void CIRCUIT::PrintIO()
 void CIRCUIT::ModifiedPrintIO()
 {
     register unsigned i;
-    string s;
+    bitset<2> b;
     for (i = 0; i < No_PI(); i++) {
-        s = PIGate(i)->GetValue_3().to_string();
-        if (s == "00") {
+        b = PIGate(i)->GetValue_3();
+        if (b == S0_3) {
             cout << 0;
         }
-        else if (s == "11") {
+        else if (b == S1_3) {
             cout << 1;
         }
         else {
@@ -295,11 +295,11 @@ void CIRCUIT::ModifiedPrintIO()
     }
     cout << " ";
     for (i = 0; i < No_PO(); i++) {
-        s = POGate(i)->GetValue_3().to_string();
-        if (s == "00") {
+        b = POGate(i)->GetValue_3();
+        if (b == S0_3) {
             cout << 0;
         }
-        else if (s == "11") {
+        else if (b == S1_3) {
             cout << 1;
         }
         else {

@@ -26,7 +26,7 @@ class GATE
         bitset<PatternNum> FaultFlag;
     public:
         //Initialize GATE
-        GATE(): Function(G_BAD), Level(0), Value(X), Value_t(X), Value_3(stoi("01")), Inversion(false) {
+        GATE(): Function(G_BAD), Level(0), Value(X), Value_t(X), Value_3(X_3), Inversion(false) {
             Input_list.reserve(4);
             Output_list.reserve(4);
             Count[0] = (0);
