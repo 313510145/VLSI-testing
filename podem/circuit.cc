@@ -7,18 +7,18 @@ using namespace std;
 
 extern GetLongOpt option;
 
-bool CIRCUIT::FindPath() {
-    GATE* current_gate = this->PathStack.back();
-    if (current_gate == this->end_gate) {
-        for (vector<GATE*>::iterator it = this->PathStack.begin(); it != this->PathStack.end(); it++) {
-            if (it != this->PathStack.begin()) {
-                cout << " ";
-            }
-            cout << (*it)->GetName();
-        }
-        cout << endl;
-        this->PathStack.pop_back();
-        this->PI_PO_path_num++;
+bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const string& es) {
+    GATE* current_gate = ps.back();
+    if (current_gate->GetName() == es) {
+        // for (vector<GATE*>::iterator it = ps.begin(); it != ps.end(); it++) {
+        //     if (it != ps.begin()) {
+        //         cout << " ";
+        //     }
+        //     cout << (*it)->GetName();
+        // }
+        // cout << endl;
+        ps.pop_back();
+        pn++;
         return true;
     }
     bool path_found = false;
@@ -26,8 +26,8 @@ bool CIRCUIT::FindPath() {
     for (unsigned int i = 0; i < current_gate->No_Fanout(); i++) {
         next_gate = current_gate->Fanout(i);
         if (!next_gate->GetFlag(NOT_IN_PATH)) {
-            this->PathStack.push_back(next_gate);
-            bool temp = FindPath();
+            ps.push_back(next_gate);
+            bool temp = FindPath(ps, pn, es);
             if (!path_found) {
                 path_found = temp;
             }
@@ -36,7 +36,7 @@ bool CIRCUIT::FindPath() {
     if (!path_found) {
         current_gate->SetFlag(NOT_IN_PATH);
     }
-    this->PathStack.pop_back();
+    ps.pop_back();
     return path_found;
 }
 
@@ -78,7 +78,7 @@ void CIRCUIT::PrintNo_Net() {
          << "\tnumber of stem nets: " << stem_net_num << endl;
 }
 
-void CIRCUIT::PrintAllPath(const char* const start, const char* const end) {
+void CIRCUIT::PrintAllPath(const string& start, const string& end) {
     GATE *start_gate = nullptr;
     for (unsigned int i = 0; i < this->PIlist.size(); i++) {
         if (this->PIGate(i)->GetName() == start) {
@@ -86,17 +86,12 @@ void CIRCUIT::PrintAllPath(const char* const start, const char* const end) {
             break;
         }
     }
-    for (unsigned int i = 0; i < this->POlist.size(); i++) {
-        if (this->POGate(i)->GetName() == end) {
-            this->end_gate = this->POGate(i);
-            break;
-        }
-    }
-    if (start_gate != nullptr && this->end_gate != nullptr) {
-        this->PathStack.push_back(start_gate);
-        this->PI_PO_path_num = 0;
-        FindPath();
-        cout << "The paths from " << start << " to " << end << ": " << this->PI_PO_path_num << endl;
+    if (start_gate != nullptr) {
+        vector<GATE*> path_stack;
+        path_stack.push_back(start_gate);
+        unsigned int path_num = 0;
+        FindPath(path_stack, path_num, end);
+        cout << "The paths from " << start << " to " << end << ": " << path_num << endl;
         for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
             if ((*it)->GetFlag(NOT_IN_PATH)) {
                 (*it)->ResetFlag(NOT_IN_PATH);
@@ -105,7 +100,7 @@ void CIRCUIT::PrintAllPath(const char* const start, const char* const end) {
     }
 }
 
-void CIRCUIT::GenerateRandomPattern(const char* const num, const char* const output, const bool& unknown) {
+void CIRCUIT::GenerateRandomPattern(const string& num, const string& output, const bool& unknown) {
     ofstream output_file(output);
     if (!output_file) {
         cout << "Can't open pattern file: " << output << endl;
