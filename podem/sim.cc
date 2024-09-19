@@ -284,26 +284,26 @@ void CIRCUIT::ModifiedPrintIO()
     for (i = 0; i < No_PI(); i++) {
         b = PIGate(i)->GetValue_3();
         if (b == S0_3) {
-            cout << 0;
+            cout << S0;
         }
         else if (b == S1_3) {
-            cout << 1;
+            cout << S1;
         }
         else {
-            cout << 2;
+            cout << X;
         }
     }
     cout << " ";
     for (i = 0; i < No_PO(); i++) {
         b = POGate(i)->GetValue_3();
         if (b == S0_3) {
-            cout << 0;
+            cout << S0;
         }
         else if (b == S1_3) {
-            cout << 1;
+            cout << S1;
         }
         else {
-            cout << 2;
+            cout << X;
         }
     }
     cout << endl;
