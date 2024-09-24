@@ -30,7 +30,7 @@ class CIRCUIT
         ListofGate PropagateTree;
         ListofGateIte QueueIte;
 
-        bool FindPath(vector<GATE*>& ps, unsigned int& pn, const string& es);
+        bool FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg);
 
     public:
         //Initialize netlist

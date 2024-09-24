@@ -7,9 +7,9 @@ using namespace std;
 
 extern GetLongOpt option;
 
-bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const string& es) {
+bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg) {
     GATE* current_gate = ps.back();
-    if (current_gate->GetName() == es) {
+    if (current_gate == eg) {
         for (vector<GATE*>::iterator it = ps.begin(); it != ps.end(); it++) {
             if (it != ps.begin()) {
                 cout << " ";
@@ -27,7 +27,7 @@ bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const string& es) {
         next_gate = current_gate->Fanout(i);
         if (!next_gate->GetFlag(NOT_IN_PATH)) {
             ps.push_back(next_gate);
-            bool temp = FindPath(ps, pn, es);
+            bool temp = FindPath(ps, pn, eg);
             if (!path_found) {
                 path_found = temp;
             }
@@ -79,10 +79,16 @@ void CIRCUIT::PrintNo_Net() {
 }
 
 void CIRCUIT::PrintAllPath(const string& start, const string& end) {
-    GATE *start_gate = nullptr;
+    GATE *start_gate = nullptr, *end_gate = nullptr;
     for (unsigned int i = 0; i < this->PIlist.size(); i++) {
         if (this->PIGate(i)->GetName() == start) {
             start_gate = this->PIGate(i);
+            break;
+        }
+    }
+    for (unsigned int i = 0; i < this->POlist.size(); i++) {
+        if (this->POGate(i)->GetName() == end) {
+            end_gate = this->POGate(i);
             break;
         }
     }
@@ -90,7 +96,7 @@ void CIRCUIT::PrintAllPath(const string& start, const string& end) {
         vector<GATE*> path_stack;
         path_stack.push_back(start_gate);
         unsigned int path_num = 0;
-        FindPath(path_stack, path_num, end);
+        FindPath(path_stack, path_num, end_gate);
         cout << "The paths from " << start << " to " << end << ": " << path_num << endl;
         for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
             if ((*it)->GetFlag(NOT_IN_PATH)) {
