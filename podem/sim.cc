@@ -172,9 +172,10 @@ bitset<2> CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
     }
     //NAND, NOR and NOT
     if (gptr->Is_Inversion()) {
-        if (value_3 == S0_3 || value_3 == S1_3) {
-            value_3 = ~value_3;
-        }
+        value_3 = ~value_3;
+        bool temp = value_3[0];
+        value_3[0] = value_3[1];
+        value_3[1] = temp;
     }
     return value_3;
 }
