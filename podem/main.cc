@@ -55,6 +55,10 @@ int SetupOption(int argc, char ** argv)
             "assignment 2", 0);
     option.enroll("simulator", GetLongOpt::MandatoryValue,
             "assignment 3", 0);
+    option.enroll("check_point", GetLongOpt::NoValue,
+            "assignment 4", 0);
+    option.enroll("bridging", GetLongOpt::NoValue,
+            "assignment 4", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -149,6 +153,14 @@ int main(int argc, char ** argv)
     else if (option.retrieve("simulator")) {
         Circuit.InitPattern(option.retrieve("input"));
         Circuit.CompiledCodeSimulator(option.retrieve("simulator"));
+    }
+    else if (option.retrieve("check_point")) {
+        Circuit.GenerateAllFaultList();
+        Circuit.GenerateCheckPointFaultList();
+        Circuit.CompareNo_Fault();
+    }
+    else if (option.retrieve("bridging")) {
+        Circuit.GenerateBridgingFaultList(option.retrieve("output"));
     }
     else {
         Circuit.GenerateAllFaultList();

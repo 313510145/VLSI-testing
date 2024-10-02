@@ -1,6 +1,7 @@
 #ifndef CIRCUIT_H
 #define CIRCUIT_H
 #include "fault.h"
+#include "bfault.h"
 #include "tfault.h"
 #include "ReadPattern.h"
 #include <stdlib.h>
@@ -19,6 +20,10 @@ class CIRCUIT
         vector<GATE*> PPOlist;
         list<FAULT*> Flist; //collapsing fault list
         list<FAULT*> UFlist; //undetected fault list
+        list<FAULT*> FlistCP;
+        list<FAULT*> UFlistCP;
+        list<BFAULT*> BFlist;
+        list<BFAULT*> UBFlist;
         list<TFAULT*> TFlist; //collapsing fault list
         list<TFAULT*> UTFlist; //undetected fault list
         unsigned MaxLevel;
@@ -117,7 +122,7 @@ class CIRCUIT
         //defined in atpg.cc
         void GenerateAllFaultList();
         void GenerateCheckPointFaultList();
-        void GenerateFaultList();
+        void GenerateBridgingFaultList(const string& output);
         void Atpg();
         void SortFaninByLevel();
         bool CheckTest();
@@ -132,6 +137,8 @@ class CIRCUIT
         GATEPTR FindPIAssignment(GATEPTR gptr, VALUE value);
         GATEPTR TestPossible(FAULT* fptr);
         void TraceDetectedStemFault(GATEPTR gptr, VALUE val);
+
+        void CompareNo_Fault();
 
         //defined in fsim.cc
         void MarkOutputGate();

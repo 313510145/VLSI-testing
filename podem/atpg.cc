@@ -44,6 +44,73 @@ void CIRCUIT::GenerateAllFaultList()
     return;
 }
 
+void CIRCUIT::GenerateCheckPointFaultList() {
+    cout << "Generate stuck-at fault list with checkpoint theorem" << endl;
+    register unsigned i, j;
+    GATEFUNC fun;
+    GATEPTR gptr, fanout;
+    FAULT *fptr;
+    for (i = 0; i < No_Gate(); ++i) {
+        gptr = Netlist[i];
+        fun = gptr->GetFunction();
+        if (fun == G_PI) {
+            fptr = new FAULT(gptr, gptr, S0);
+            FlistCP.push_front(fptr);
+            fptr = new FAULT(gptr, gptr, S1);
+            FlistCP.push_front(fptr);
+        }
+        if (gptr->No_Fanout() == 1) {
+            continue;
+        }
+        for (j = 0; j < gptr->No_Fanout(); ++j) {
+            fanout = gptr->Fanout(j);
+            fptr = new FAULT(gptr, fanout, S0);
+            fptr->SetBranch(true);
+            FlistCP.push_front(fptr);
+            fptr = new FAULT(gptr, fanout, S1);
+            fptr->SetBranch(true);
+            FlistCP.push_front(fptr);
+        }
+    }
+    UFlistCP = FlistCP;
+    return;
+}
+
+void CIRCUIT::GenerateBridgingFaultList(const string& output) {
+    cout << "Generate bridging fault list" << endl;
+    register unsigned i;
+    GATE* gptr;
+    BFAULT* bfptr;
+    for (i = 0; i < No_Gate(); i++) {
+        this->Queue[this->Gate(i)->GetLevel()].push_back(this->Gate(i));
+    }
+    for (i = 0; i < this->MaxLevel; i++) {
+        while (!Queue[i].empty()) {
+            gptr = Queue[i].front();
+            Queue[i].pop_front();
+            if (!Queue[i].empty()) {
+                bfptr = new BFAULT(gptr, Queue[i].front(), S0);
+                this->BFlist.push_back(bfptr);
+                bfptr = new BFAULT(gptr, Queue[i].front(), S1);
+                this->BFlist.push_back(bfptr);
+            }
+        }
+    }
+    ofstream output_file(output);
+    if (!output_file) {
+        cout << "Can't open output file: " << output << endl;
+        exit(-1);
+    }
+    for (list<BFAULT*>::iterator it = this->BFlist.begin(); it != this->BFlist.end(); ++it) {
+        if ((*it)->GetValue() == S0) {
+            output_file << "(" << (*it)->GetInputGate1()->GetName() << ", " << (*it)->GetInputGate2()->GetName() << ", AND)\n";
+        }
+        else {
+            output_file << "(" << (*it)->GetInputGate1()->GetName() << ", " << (*it)->GetInputGate2()->GetName() << ", OR)\n";
+        }
+    }
+}
+
 //stuck-at fualt PODEM ATPG (fault dropping)
 void CIRCUIT::Atpg()
 {
@@ -591,4 +658,10 @@ void CIRCUIT::TraceDetectedStemFault(GATEPTR gptr, VALUE val)
     if (gptr->No_Fanout() > 1) { return; }
     TraceDetectedStemFault(gptr->Fanout(0), val);
     return;
+}
+
+void CIRCUIT::CompareNo_Fault() {
+    cout << "number of faults: " << this->Flist.size() << endl
+         << "number of checkpoint faults: " << this->FlistCP.size() << endl
+         << static_cast<double>(this->FlistCP.size()) / this->Flist.size() * 100 << "% of faults have been collapsed\n";
 }
