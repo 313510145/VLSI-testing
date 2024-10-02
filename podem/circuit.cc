@@ -107,6 +107,12 @@ void CIRCUIT::PrintAllPath(const string& start, const string& end) {
 }
 
 void CIRCUIT::GenerateRandomPattern(const string& num, const string& output, const bool& unknown) {
+    if (unknown) {
+        cout << "Generate random patterns with unknown values\n";
+    }
+    else {
+        cout << "Generate random patterns without unknown values\n";
+    }
     ofstream output_file(output);
     if (!output_file) {
         cout << "Can't open pattern file: " << output << endl;

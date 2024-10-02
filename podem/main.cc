@@ -53,6 +53,8 @@ int SetupOption(int argc, char ** argv)
             "consider unknown values", 0);
     option.enroll("mod_logicsim", GetLongOpt::NoValue,
             "assignment 2", 0);
+    option.enroll("simulator", GetLongOpt::MandatoryValue,
+            "assignment 3", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -143,6 +145,10 @@ int main(int argc, char ** argv)
     else if (option.retrieve("mod_logicsim")) {
         Circuit.InitPattern(option.retrieve("input"));
         Circuit.ModifiedLogicSimVectors();
+    }
+    else if (option.retrieve("simulator")) {
+        Circuit.InitPattern(option.retrieve("input"));
+        Circuit.CompiledCodeSimulator(option.retrieve("simulator"));
     }
     else {
         Circuit.GenerateAllFaultList();

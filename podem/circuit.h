@@ -144,10 +144,13 @@ class CIRCUIT
 
 	//defined in psim.cc for parallel logic simulation
 	void ParallelLogicSimVectors();
-	void ParallelLogicSim();
-	void ParallelEvaluate(GATEPTR gptr);
+	unsigned int ParallelLogicSim();
+	unsigned int ParallelEvaluate(GATEPTR gptr);
+	void CompiledParallelEvaluate(ostream& os, GATEPTR gptr);
 	void PrintParallelIOs(unsigned idx);
 	void ScheduleAllPIs();
+
+    void CompiledCodeSimulator(const string& output);
 
 	//defined in stfsim.cc for single pattern single transition-fault simulation
 	void GenerateAllTFaultList();
