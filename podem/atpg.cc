@@ -109,6 +109,7 @@ void CIRCUIT::GenerateBridgingFaultList(const string& output) {
             output_file << "(" << (*it)->GetInputGate1()->GetName() << ", " << (*it)->GetInputGate2()->GetName() << ", OR)\n";
         }
     }
+    output_file.close();
 }
 
 //stuck-at fualt PODEM ATPG (fault dropping)

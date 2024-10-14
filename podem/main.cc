@@ -59,6 +59,8 @@ int SetupOption(int argc, char ** argv)
             "assignment 4", 0);
     option.enroll("bridging", GetLongOpt::NoValue,
             "assignment 4", 0);
+    option.enroll("bridging_fsim", GetLongOpt::NoValue,
+            "assignment 5", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -161,6 +163,9 @@ int main(int argc, char ** argv)
     }
     else if (option.retrieve("bridging")) {
         Circuit.GenerateBridgingFaultList(option.retrieve("output"));
+    }
+    else if (option.retrieve("bridging_fsim")) {
+
     }
     else {
         Circuit.GenerateAllFaultList();
