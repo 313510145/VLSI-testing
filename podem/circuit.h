@@ -122,7 +122,10 @@ class CIRCUIT
         //defined in atpg.cc
         void GenerateAllFaultList();
         void GenerateCheckPointFaultList();
-        void GenerateBridgingFaultList(const string& output);
+        void GenerateBridgingFaultList();
+        void OutputBridgingFaultList(const string& output);
+        void ParallelBFaultSimVectors();
+        void BFaultSim();
         void Atpg();
         void SortFaninByLevel();
         bool CheckTest();
