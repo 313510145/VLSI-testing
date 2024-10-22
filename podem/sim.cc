@@ -238,6 +238,25 @@ void PATTERN::ReadNextPattern()
     return;
 }
 
+void PATTERN::FeedNextPattern() {
+    int V;
+    for (int i = 0; i < no_pi_infile; i++) {
+        V = 2.0 * rand() / (RAND_MAX + 1.0);
+        if (V == 0) {
+            if (inlist[i]->GetValue() != S0) {
+                inlist[i]->SetFlag(SCHEDULED);
+                inlist[i]->SetValue(S0);
+            }
+        }
+        else {
+            if (inlist[i]->GetValue() != S1) {
+                inlist[i]->SetFlag(SCHEDULED);
+                inlist[i]->SetValue(S1);
+            }
+        }
+    }
+}
+
 void PATTERN::ModifiedReadNextPattern()
 {
     char V;

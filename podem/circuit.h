@@ -126,7 +126,8 @@ class CIRCUIT
         void OutputBridgingFaultList(const string& output);
         void ParallelBFaultSimVectors();
         void BFaultSim();
-        void Atpg();
+        void Atpg(const bool& append = false);
+        void RandomPatternAtpg(const string& output);
         void SortFaninByLevel();
         bool CheckTest();
         bool TraceUnknownPath(GATEPTR gptr);

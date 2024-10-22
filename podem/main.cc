@@ -61,6 +61,10 @@ int SetupOption(int argc, char ** argv)
             "assignment 4", 0);
     option.enroll("bridging_fsim", GetLongOpt::NoValue,
             "assignment 5", 0);
+    option.enroll("random_pattern", GetLongOpt::NoValue,
+            "assignment 6", 0);
+    option.enroll("bridging_atpg", GetLongOpt::NoValue,
+            "assignment 6", 0);
     int optind = option.parse(argc, argv);
     if ( optind < 1 ) { exit(0); }
     if ( option.retrieve("help") ) {
@@ -171,6 +175,24 @@ int main(int argc, char ** argv)
         Circuit.MarkOutputGate();
         Circuit.InitPattern(option.retrieve("input"));
         Circuit.ParallelBFaultSimVectors();
+    }
+    else if (option.retrieve("random_pattern")) {
+        Circuit.GenerateAllFaultList();
+        Circuit.SortFaninByLevel();
+        Circuit.MarkOutputGate();
+        if (option.retrieve("bt")) {
+            Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
+        }
+        Circuit.RandomPatternAtpg(option.retrieve("output"));
+    }
+    else if (option.retrieve("bridging_atpg")) {
+        Circuit.GenerateBridgingFaultList();
+        Circuit.SortFaninByLevel();
+        Circuit.MarkOutputGate();
+        if (option.retrieve("bt")) {
+            Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
+        }
+        // Circuit.BFaultAtpg(option.retrieve("output"));
     }
     else {
         Circuit.GenerateAllFaultList();

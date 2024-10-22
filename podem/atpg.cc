@@ -298,35 +298,43 @@ void CIRCUIT::BFaultSim() {
 }
 
 //stuck-at fualt PODEM ATPG (fault dropping)
-void CIRCUIT::Atpg()
-{
+void CIRCUIT::Atpg(const bool& append) {
     cout << "Run stuck-at fault ATPG" << endl;
     unsigned i, total_backtrack_num(0), pattern_num(0);
     ATPG_STATUS status;
     FAULT* fptr;
     list<FAULT*>::iterator fite;
-    
     //Prepare the output files
     ofstream OutputStrm;
-    if (option.retrieve("output")){
-        OutputStrm.open((char*)option.retrieve("output"),ios::out);
-        if(!OutputStrm){
-              cout << "Unable to open output file: "
-                   << option.retrieve("output") << endl;
-              cout << "Unsaved output!\n";
-              exit(-1);
+    if (option.retrieve("output")) {
+        if (append) {
+            OutputStrm.open((char*)option.retrieve("output"), ios::app);
+        }
+        else {
+            OutputStrm.open((char*)option.retrieve("output"), ios::out);
+        }
+        if (!OutputStrm) {
+            cout << "Unable to open output file: " << option.retrieve("output") << endl
+                 << "Unsaved output!\n";
+            exit(-1);
         }
     }
-
-    if (option.retrieve("output")){
-	    for (i = 0;i<PIlist.size();++i) {
-		OutputStrm << "PI " << PIlist[i]->GetName() << " ";
-	    }
-	    OutputStrm << endl;
+    if (option.retrieve("output")) {
+        if (!append) {
+            for (i = 0; i < PIlist.size(); ++i) {
+                if (i != 0) {
+                    OutputStrm << " ";
+                }
+                OutputStrm << "PI " << PIlist[i]->GetName();
+            }
+            OutputStrm << endl;
+        }
     }
-    for (fite = Flist.begin(); fite != Flist.end();++fite) {
+    for (fite = Flist.begin(); fite != Flist.end(); ++fite) {
         fptr = *fite;
-        if (fptr->GetStatus() == DETECTED) { continue; }
+        if (fptr->GetStatus() == DETECTED) {
+            continue;
+        }
         //run podem algorithm
         status = Podem(fptr, total_backtrack_num);
         switch (status) {
@@ -334,12 +342,18 @@ void CIRCUIT::Atpg()
                 fptr->SetStatus(DETECTED);
                 ++pattern_num;
                 //run fault simulation for fault dropping
-                for (i = 0;i < PIlist.size();++i) { 
-			ScheduleFanout(PIlist[i]); 
-                        if (option.retrieve("output")){ OutputStrm << PIlist[i]->GetValue();}
-		}
-                if (option.retrieve("output")){ OutputStrm << endl;}
-                for (i = PIlist.size();i<Netlist.size();++i) { Netlist[i]->SetValue(X); }
+                for (i = 0; i < PIlist.size(); ++i) {
+                    ScheduleFanout(PIlist[i]); 
+                    if (option.retrieve("output")) {
+                        OutputStrm << PIlist[i]->GetValue();
+                    }
+		        }
+                if (option.retrieve("output")) {
+                    OutputStrm << endl;
+                }
+                for (i = PIlist.size(); i < Netlist.size(); ++i) {
+                    Netlist[i]->SetValue(X);
+                }
                 LogicSim();
                 FaultSim();
                 break;
@@ -351,12 +365,12 @@ void CIRCUIT::Atpg()
                 break;
         }
     } //end all faults
-
+    OutputStrm.close();
     //compute fault coverage
     unsigned total_num(0);
     unsigned abort_num(0), redundant_num(0), detected_num(0);
     unsigned eqv_abort_num(0), eqv_redundant_num(0), eqv_detected_num(0);
-    for (fite = Flist.begin();fite!=Flist.end();++fite) {
+    for (fite = Flist.begin(); fite != Flist.end(); ++fite) {
         fptr = *fite;
         switch (fptr->GetStatus()) {
             case DETECTED:
@@ -377,30 +391,85 @@ void CIRCUIT::Atpg()
         }
     }
     total_num = detected_num + abort_num + redundant_num;
-
     cout.setf(ios::fixed);
     cout.precision(2);
-    cout << "---------------------------------------" << endl;
-    cout << "Test pattern number = " << pattern_num << endl;
-    cout << "Total backtrack number = " << total_backtrack_num << endl;
-    cout << "---------------------------------------" << endl;
-    cout << "Total fault number = " << total_num << endl;
-    cout << "Detected fault number = " << detected_num << endl;
-    cout << "Undetected fault number = " << abort_num + redundant_num << endl;
-    cout << "Abort fault number = " << abort_num << endl;
-    cout << "Redundant fault number = " << redundant_num << endl;
-    cout << "---------------------------------------" << endl;
-    cout << "Total equivalent fault number = " << Flist.size() << endl;
-    cout << "Equivalent detected fault number = " << eqv_detected_num << endl;
-    cout << "Equivalent undetected fault number = " << eqv_abort_num + eqv_redundant_num << endl;
-    cout << "Equivalent abort fault number = " << eqv_abort_num << endl;
-    cout << "Equivalent redundant fault number = " << eqv_redundant_num << endl;
-    cout << "---------------------------------------" << endl;
-    cout << "Fault Coverge = " << 100*detected_num/double(total_num) << "%" << endl;
-    cout << "Equivalent FC = " << 100*eqv_detected_num/double(Flist.size()) << "%" << endl;
-    cout << "Fault Efficiency = " << 100*detected_num/double(total_num - redundant_num) << "%" << endl;
-    cout << "---------------------------------------" << endl;
+    cout << "---------------------------------------" << endl
+         << "Test pattern number = " << pattern_num << endl
+         << "Total backtrack number = " << total_backtrack_num << endl
+         << "---------------------------------------" << endl
+         << "Total fault number = " << total_num << endl
+         << "Detected fault number = " << detected_num << endl
+         << "Undetected fault number = " << abort_num + redundant_num << endl
+         << "Abort fault number = " << abort_num << endl
+         << "Redundant fault number = " << redundant_num << endl
+         << "---------------------------------------" << endl
+         << "Total equivalent fault number = " << Flist.size() << endl
+         << "Equivalent detected fault number = " << eqv_detected_num << endl
+         << "Equivalent undetected fault number = " << eqv_abort_num + eqv_redundant_num << endl
+         << "Equivalent abort fault number = " << eqv_abort_num << endl
+         << "Equivalent redundant fault number = " << eqv_redundant_num << endl
+         << "---------------------------------------" << endl
+         << "Fault Coverge = " << 100 * detected_num / double(total_num) << "%" << endl
+         << "Equivalent FC = " << 100 * eqv_detected_num / double(Flist.size()) << "%" << endl
+         << "Fault Efficiency = " << 100 * detected_num / double(total_num - redundant_num) << "%" << endl
+         << "---------------------------------------" << endl;
     return;
+}
+
+void CIRCUIT::RandomPatternAtpg(const string& output) {
+    cout << "Run stuck-at fault simulation with up to 90% fault coverage or 1000 random patterns without unknown values" << endl;
+    ofstream output_file(output);
+    if (!output_file) {
+        cout << "Can't open pattern file: " << output << endl;
+        exit(-1);
+    }
+    for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
+        if (it != this->PIlist.begin()) {
+            output_file << " ";
+        }
+        output_file << "PI " << (*it)->GetName();
+    }
+    output_file << endl;
+    output_file.close();
+    srand(time(NULL));
+    InitPattern(output.c_str());
+    unsigned int pattern_num = 0;
+    unsigned int total_num, undetected_num, detected_num;
+    do {
+        ++pattern_num;
+        Pattern.FeedNextPattern();
+        output_file.open(output, ios::app);
+        if (!output_file) {
+            cout << "Can't open pattern file: " << output << endl;
+            exit(-1);
+        }
+        for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
+            output_file << (*it)->GetValue();
+        }
+        output_file << endl;
+        output_file.close();
+        SchedulePI();
+        LogicSim();
+        FaultSim();
+        total_num = 0;
+        undetected_num = 0;
+        detected_num = 0;
+        FAULT* fptr;
+        list<FAULT*>::iterator fite;
+        for (fite = Flist.begin(); fite != Flist.end(); ++fite) {
+            fptr = *fite;
+            switch (fptr->GetStatus()) {
+                case DETECTED:
+                    detected_num += fptr->GetEqvFaultNum();
+                    break;
+                default:
+                    undetected_num += fptr->GetEqvFaultNum();
+                    break;
+            }
+        }
+        total_num = detected_num + undetected_num;
+    } while (static_cast<double>(detected_num) / total_num < 0.9);
+    Atpg(true);
 }
 
 //run PODEM for target fault
