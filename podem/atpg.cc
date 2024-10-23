@@ -207,16 +207,14 @@ void CIRCUIT::BFaultSim() {
                 fptr->SetStatus(DETECTED);
                 continue;
             }
-            else {
-                if (!gptr->GetFlag(FAULTY)) {
-                    gptr->SetFlag(FAULTY);
-                    GateStack.push_front(gptr);
-                }
-                InjectFaultValue(gptr, fault_idx, fptr->GetValue());
-                gptr->SetFlag(FAULT_INJECTED);
-                ScheduleFanout(gptr);
-                simulate_flist[fault_idx++] = fptr;
+            if (!gptr->GetFlag(FAULTY)) {
+                gptr->SetFlag(FAULTY);
+                GateStack.push_front(gptr);
             }
+            InjectFaultValue(gptr, fault_idx, fptr->GetValue());
+            gptr->SetFlag(FAULT_INJECTED);
+            ScheduleFanout(gptr);
+            simulate_flist[fault_idx++] = fptr;
         }
         if (fault_idx == PatternNum) {
             for (i = 0; i <= MaxLevel; ++i) {
