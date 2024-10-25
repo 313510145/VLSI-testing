@@ -3,7 +3,7 @@
 #include <iostream>
 #include "circuit.h"
 #include "GetLongOpt.h"
-#include <algorithm>   
+#include <algorithm>
 using namespace std;
 
 extern GetLongOpt option;
@@ -84,7 +84,7 @@ void CIRCUIT::GenerateBridgingFaultList() {
     for (i = 0; i < No_Gate(); i++) {
         this->Queue[this->Gate(i)->GetLevel()].push_back(this->Gate(i));
     }
-    for (i = 0; i < this->MaxLevel; i++) {
+    for (i = 0; i <= this->MaxLevel; i++) {
         while (!Queue[i].empty()) {
             gptr = Queue[i].front();
             Queue[i].pop_front();
@@ -132,44 +132,44 @@ void CIRCUIT::ParallelBFaultSimVectors() {
     unsigned total_num(0);
     unsigned undetected_num(0), detected_num(0);
     unsigned eqv_undetected_num(0), eqv_detected_num(0);
-    BFAULT* fptr;
-    list<BFAULT*>::iterator fite;
-    for (fite = BFlist.begin(); fite != BFlist.end(); ++fite) {
-        fptr = *fite;
-        switch (fptr->GetStatus()) {
+    BFAULT* bfptr;
+    list<BFAULT*>::iterator bfite;
+    for (bfite = BFlist.begin(); bfite != BFlist.end(); ++bfite) {
+        bfptr = *bfite;
+        switch (bfptr->GetStatus()) {
             case DETECTED:
                 ++eqv_detected_num;
-                detected_num += fptr->GetEqvFaultNum();
+                detected_num += bfptr->GetEqvFaultNum();
                 break;
             default:
                 ++eqv_undetected_num;
-                undetected_num += fptr->GetEqvFaultNum();
+                undetected_num += bfptr->GetEqvFaultNum();
                 break;
         }
     }
     total_num = detected_num + undetected_num;
     cout.setf(ios::fixed);
     cout.precision(2);
-    cout << "---------------------------------------" << endl;
-    cout << "Test pattern number = " << pattern_num << endl;
-    cout << "---------------------------------------" << endl;
-    cout << "Total fault number = " << total_num << endl;
-    cout << "Detected fault number = " << detected_num << endl;
-    cout << "Undetected fault number = " << undetected_num << endl;
-    cout << "---------------------------------------" << endl;
-    cout << "Equivalent fault number = " << BFlist.size() << endl;
-    cout << "Equivalent detected fault number = " << eqv_detected_num << endl; 
-    cout << "Equivalent undetected fault number = " << eqv_undetected_num << endl; 
-    cout << "---------------------------------------" << endl;
-    cout << "Fault Coverge = " << 100 * detected_num / double(total_num) << "%" << endl;
-    cout << "Equivalent FC = " << 100 * eqv_detected_num / double(BFlist.size()) << "%" << endl;
-    cout << "---------------------------------------" << endl;
+    cout << "---------------------------------------" << endl
+         << "Test pattern number = " << pattern_num << endl
+         << "---------------------------------------" << endl
+         << "Total fault number = " << total_num << endl
+         << "Detected fault number = " << detected_num << endl
+         << "Undetected fault number = " << undetected_num << endl
+         << "---------------------------------------" << endl
+         << "Equivalent fault number = " << BFlist.size() << endl
+         << "Equivalent detected fault number = " << eqv_detected_num << endl
+         << "Equivalent undetected fault number = " << eqv_undetected_num << endl
+         << "---------------------------------------" << endl
+         << "Fault Coverge = " << 100 * detected_num / double(total_num) << "%" << endl
+         << "Equivalent FC = " << 100 * eqv_detected_num / double(BFlist.size()) << "%" << endl
+         << "---------------------------------------" << endl;
 }
 
 void CIRCUIT::BFaultSim() {
     register unsigned i, fault_idx(0);
     GATEPTR gptr = nullptr, gptr1, gptr2;
-    BFAULT *fptr;
+    BFAULT *bfptr;
     BFAULT *simulate_flist[PatternNum];
     list<GATEPTR>::iterator gite;
     for (i = 0; i < Netlist.size(); ++i) {
@@ -177,16 +177,16 @@ void CIRCUIT::BFaultSim() {
     }
     list<BFAULT*>::iterator fite;
     for (fite = UBFlist.begin(); fite != UBFlist.end(); ++fite) {
-        fptr = *fite;
-        if (fptr->GetStatus() == REDUNDANT || fptr->GetStatus() == DETECTED) {
+        bfptr = *fite;
+        if (bfptr->GetStatus() == REDUNDANT || bfptr->GetStatus() == DETECTED) {
             continue;
         }
-        if (fptr->GetInputGate1()->GetValue() == fptr->GetInputGate2()->GetValue()) {
+        if (bfptr->GetInputGate1()->GetValue() == bfptr->GetInputGate2()->GetValue()) {
             continue;
         }
-        gptr1 = fptr->GetInputGate1();
-        gptr2 = fptr->GetInputGate2();
-        if (fptr->GetValue() == S0) {
+        gptr1 = bfptr->GetInputGate1();
+        gptr2 = bfptr->GetInputGate2();
+        if (bfptr->GetValue() == S0) {
             if (gptr1->GetValue() == S1) {
                 gptr = gptr1;
             }
@@ -194,7 +194,7 @@ void CIRCUIT::BFaultSim() {
                 gptr = gptr2;
             }
         }
-        else if (fptr->GetValue() == S1) {
+        else if (bfptr->GetValue() == S1) {
             if (gptr1->GetValue() == S0) {
                 gptr = gptr1;
             }
@@ -204,17 +204,17 @@ void CIRCUIT::BFaultSim() {
         }
         if (gptr != nullptr) {
             if (gptr->GetFlag(OUTPUT)) {
-                fptr->SetStatus(DETECTED);
+                bfptr->SetStatus(DETECTED);
                 continue;
             }
             if (!gptr->GetFlag(FAULTY)) {
                 gptr->SetFlag(FAULTY);
                 GateStack.push_front(gptr);
             }
-            InjectFaultValue(gptr, fault_idx, fptr->GetValue());
+            InjectFaultValue(gptr, fault_idx, bfptr->GetValue());
             gptr->SetFlag(FAULT_INJECTED);
             ScheduleFanout(gptr);
-            simulate_flist[fault_idx++] = fptr;
+            simulate_flist[fault_idx++] = bfptr;
         }
         if (fault_idx == PatternNum) {
             for (i = 0; i <= MaxLevel; ++i) {
@@ -283,9 +283,9 @@ void CIRCUIT::BFaultSim() {
         GateStack.clear();
         fault_idx = 0;
     }
-    for (fite = UBFlist.begin();fite != UBFlist.end();) {
-        fptr = *fite;
-        if (fptr->GetStatus() == DETECTED || fptr->GetStatus() == REDUNDANT) {
+    for (fite = UBFlist.begin(); fite != UBFlist.end();) {
+        bfptr = *fite;
+        if (bfptr->GetStatus() == DETECTED || bfptr->GetStatus() == REDUNDANT) {
             fite = UBFlist.erase(fite);
         }
         else {
@@ -415,7 +415,7 @@ void CIRCUIT::Atpg(const bool& append) {
 }
 
 void CIRCUIT::RandomPatternAtpg(const string& output) {
-    cout << "Run stuck-at fault simulation with up to 90% fault coverage or 1000 random patterns without unknown values" << endl;
+    cout << "Run stuck-at fault simulation with up to 1000 random patterns without unknown values or 90% fault coverage" << endl;
     ofstream output_file(output);
     if (!output_file) {
         cout << "Can't open pattern file: " << output << endl;
@@ -433,6 +433,7 @@ void CIRCUIT::RandomPatternAtpg(const string& output) {
     InitPattern(output.c_str());
     unsigned int pattern_num = 0;
     unsigned int total_num, undetected_num, detected_num;
+    unsigned int eqv_undetected_num, eqv_detected_num;
     do {
         ++pattern_num;
         Pattern.FeedNextPattern();
@@ -452,22 +453,175 @@ void CIRCUIT::RandomPatternAtpg(const string& output) {
         total_num = 0;
         undetected_num = 0;
         detected_num = 0;
+        eqv_undetected_num = 0;
+        eqv_detected_num = 0;
         FAULT* fptr;
         list<FAULT*>::iterator fite;
         for (fite = Flist.begin(); fite != Flist.end(); ++fite) {
             fptr = *fite;
             switch (fptr->GetStatus()) {
                 case DETECTED:
+                    ++eqv_detected_num;
                     detected_num += fptr->GetEqvFaultNum();
                     break;
                 default:
+                    ++eqv_undetected_num;
                     undetected_num += fptr->GetEqvFaultNum();
                     break;
             }
         }
         total_num = detected_num + undetected_num;
-    } while (static_cast<double>(detected_num) / total_num < 0.9);
+    } while (pattern_num < 1000 && static_cast<double>(detected_num) / total_num < 0.9);
+    cout.setf(ios::fixed);
+    cout.precision(2);
+    cout << "---------------------------------------" << endl
+         << "Test pattern number = " << pattern_num << endl
+         << "---------------------------------------" << endl
+         << "Total fault number = " << total_num << endl
+         << "Detected fault number = " << detected_num << endl
+         << "Undetected fault number = " << undetected_num << endl
+         << "---------------------------------------" << endl
+         << "Equivalent fault number = " << Flist.size() << endl
+         << "Equivalent detected fault number = " << eqv_detected_num << endl 
+         << "Equivalent undetected fault number = " << eqv_undetected_num << endl 
+         << "---------------------------------------" << endl
+         << "Fault Coverge = " << 100 * detected_num / double(total_num) << "%" << endl
+         << "Equivalent FC = " << 100 * eqv_detected_num / double(Flist.size()) << "%" << endl
+         << "---------------------------------------" << endl;
     Atpg(true);
+}
+
+void CIRCUIT::BFaultAtpg(const string& output) {
+    cout << "Run bridging fault ATPG" << endl;
+    unsigned i, total_backtrack_num(0), pattern_num(0);
+    ATPG_STATUS status;
+    BFAULT* bfptr;
+    list<BFAULT*>::iterator fite;
+    ofstream OutputStrm;
+    if (option.retrieve("output")) {
+        OutputStrm.open((char*)option.retrieve("output"), ios::out);
+        if (!OutputStrm) {
+            cout << "Unable to open output file: " << option.retrieve("output") << endl
+                 << "Unsaved output!\n";
+            exit(-1);
+        }
+    }
+    if (option.retrieve("output")) {
+        for (i = 0; i < PIlist.size(); ++i) {
+            if (i != 0) {
+                OutputStrm << " ";
+            }
+            OutputStrm << "PI " << PIlist[i]->GetName();
+        }
+        OutputStrm << endl;
+    }
+    for (fite = BFlist.begin(); fite != BFlist.end(); ++fite) {
+        bfptr = *fite;
+        if (bfptr->GetStatus() == DETECTED) {
+            continue;
+        }
+        FAULT* fptr = new FAULT((*fite)->GetInputGate1(), (*fite)->GetInputGate1(), (*fite)->GetValue());
+        status = BFaultPodem(fptr, total_backtrack_num, (*fite)->GetInputGate2());
+        delete fptr;
+        if (status == TRUE) {
+            bfptr->SetStatus(DETECTED);
+            ++pattern_num;
+            for (i = 0; i < PIlist.size(); ++i) {
+                ScheduleFanout(PIlist[i]); 
+                if (option.retrieve("output")) {
+                    OutputStrm << PIlist[i]->GetValue();
+                }
+            }
+            if (option.retrieve("output")) {
+                OutputStrm << endl;
+            }
+            for (i = PIlist.size(); i < Netlist.size(); ++i) {
+                Netlist[i]->SetValue(X);
+            }
+            LogicSim();
+            BFaultSim();
+        }
+        else {
+            FAULT* fptr = new FAULT((*fite)->GetInputGate2(), (*fite)->GetInputGate2(), (*fite)->GetValue());
+            status = BFaultPodem(fptr, total_backtrack_num, (*fite)->GetInputGate1());
+            delete fptr;
+            switch (status) {
+                case TRUE:
+                    bfptr->SetStatus(DETECTED);
+                    ++pattern_num;
+                    for (i = 0; i < PIlist.size(); ++i) {
+                        ScheduleFanout(PIlist[i]); 
+                        if (option.retrieve("output")) {
+                            OutputStrm << PIlist[i]->GetValue();
+                        }
+                    }
+                    if (option.retrieve("output")) {
+                        OutputStrm << endl;
+                    }
+                    for (i = PIlist.size(); i < Netlist.size(); ++i) {
+                        Netlist[i]->SetValue(X);
+                    }
+                    LogicSim();
+                    BFaultSim();
+                    break;
+                case CONFLICT:
+                    bfptr->SetStatus(REDUNDANT);
+                    break;
+                case FALSE:
+                    bfptr->SetStatus(ABORT);
+                    break;
+            }
+
+        }
+    }
+    OutputStrm.close();
+    unsigned total_num(0);
+    unsigned abort_num(0), redundant_num(0), detected_num(0);
+    unsigned eqv_abort_num(0), eqv_redundant_num(0), eqv_detected_num(0);
+    for (fite = BFlist.begin(); fite != BFlist.end(); ++fite) {
+        bfptr = *fite;
+        switch (bfptr->GetStatus()) {
+            case DETECTED:
+                ++eqv_detected_num;
+                detected_num += bfptr->GetEqvFaultNum();
+                break;
+            case REDUNDANT:
+                ++eqv_redundant_num;
+                redundant_num += bfptr->GetEqvFaultNum();
+                break;
+            case ABORT:
+                ++eqv_abort_num;
+                abort_num += bfptr->GetEqvFaultNum();
+                break;
+            default:
+                cerr << "Unknown fault type exists" << endl;
+                break;
+        }
+    }
+    total_num = detected_num + abort_num + redundant_num;
+    cout.setf(ios::fixed);
+    cout.precision(2);
+    cout << "---------------------------------------" << endl
+         << "Test pattern number = " << pattern_num << endl
+         << "Total backtrack number = " << total_backtrack_num << endl
+         << "---------------------------------------" << endl
+         << "Total fault number = " << total_num << endl
+         << "Detected fault number = " << detected_num << endl
+         << "Undetected fault number = " << abort_num + redundant_num << endl
+         << "Abort fault number = " << abort_num << endl
+         << "Redundant fault number = " << redundant_num << endl
+         << "---------------------------------------" << endl
+         << "Total equivalent fault number = " << BFlist.size() << endl
+         << "Equivalent detected fault number = " << eqv_detected_num << endl
+         << "Equivalent undetected fault number = " << eqv_abort_num + eqv_redundant_num << endl
+         << "Equivalent abort fault number = " << eqv_abort_num << endl
+         << "Equivalent redundant fault number = " << eqv_redundant_num << endl
+         << "---------------------------------------" << endl
+         << "Fault Coverge = " << 100 * detected_num / double(total_num) << "%" << endl
+         << "Equivalent FC = " << 100 * eqv_detected_num / double(BFlist.size()) << "%" << endl
+         << "Fault Efficiency = " << 100 * detected_num / double(total_num - redundant_num) << "%" << endl
+         << "---------------------------------------" << endl;
+    return;
 }
 
 //run PODEM for target fault
@@ -574,6 +728,111 @@ ATPG_STATUS CIRCUIT::Podem(FAULT* fptr, unsigned &total_backtrack_num)
 		}//end for all PI
     } //end status == TRUE
 
+    total_backtrack_num += backtrack_num;
+    return status;
+}
+
+ATPG_STATUS CIRCUIT::BFaultPodem(FAULT* fptr, unsigned &total_backtrack_num, GATE* gptr) {
+    unsigned i, backtrack_num(0);
+    GATEPTR pi_gptr(0), decision_gptr(0);
+    ATPG_STATUS status;
+    for (i = 0; i < Netlist.size(); ++i) {
+        Netlist[i]->SetValue(X);
+    }
+    MarkPropagateTree(fptr->GetOutputGate());
+    status = SetUniqueImpliedValue(fptr);
+    switch (status) {
+        case TRUE:
+            LogicSim();
+            if (FaultEvaluate(fptr)) {
+                ScheduleFanout(fptr->GetOutputGate());
+                LogicSim();
+            }
+            if (!CheckTest()) {
+                status = FALSE;
+            }
+            break;
+        case CONFLICT:
+            status = CONFLICT;
+            break;
+        case FALSE: break;
+    }
+    while (backtrack_num < BackTrackLimit && status == FALSE) {
+        pi_gptr = TestPossible(fptr);
+        if (pi_gptr) {
+            ScheduleFanout(pi_gptr);
+            GateStack.push_back(pi_gptr);
+            decision_gptr = pi_gptr;
+        }
+        else {
+            while (!GateStack.empty() && !pi_gptr) {
+                if (decision_gptr->GetFlag(ALL_ASSIGNED)) {
+                    decision_gptr->ResetFlag(ALL_ASSIGNED);
+                    decision_gptr->SetValue(X);
+                    ScheduleFanout(decision_gptr);
+                    GateStack.pop_back();
+                    decision_gptr = GateStack.back();
+                }
+                else {
+                    decision_gptr->InverseValue();
+                    ScheduleFanout(decision_gptr);
+                    decision_gptr->SetFlag(ALL_ASSIGNED);
+                    ++backtrack_num;
+                    pi_gptr = decision_gptr;
+                }
+            }
+            if (!pi_gptr) {
+                status = CONFLICT;
+            }
+        }
+        if (pi_gptr) {
+            LogicSim();
+            if (FaultEvaluate(fptr)) {
+                ScheduleFanout(fptr->GetOutputGate());
+                LogicSim();
+            }
+            if (CheckTest()) {
+                status = TRUE;
+            }
+        }
+    }
+    list<GATEPTR>::iterator gite;
+    for (gite = GateStack.begin(); gite != GateStack.end(); ++gite) {
+        (*gite)->ResetFlag(ALL_ASSIGNED);
+    }
+    for (gite = PropagateTree.begin(); gite != PropagateTree.end(); ++gite) {
+        (*gite)->ResetFlag(MARKED);
+    }
+    GateStack.clear();
+    PropagateTree.clear();
+    if (status ==  TRUE) {
+        if (gptr->GetValue() == X || gptr->GetValue() == fptr->GetValue()) {
+            gptr->SetValue(fptr->GetValue());
+        }
+        else {
+            return CONFLICT;
+        }
+		for (i = 0; i < PIlist.size(); ++i) {
+		    switch (PIlist[i]->GetValue()) {
+			case S1:
+                break;
+			case S0:
+                break;
+			case D:
+                PIlist[i]->SetValue(S1);
+                break;
+			case B:
+                PIlist[i]->SetValue(S0);
+                break;
+			case X:
+                PIlist[i]->SetValue(VALUE(2.0 * rand() / (RAND_MAX + 1.0)));
+                break;
+			default:
+                cerr << "Illigal value" << endl;
+                break;
+		    }
+		}
+    }
     total_backtrack_num += backtrack_num;
     return status;
 }
@@ -916,5 +1175,5 @@ void CIRCUIT::TraceDetectedStemFault(GATEPTR gptr, VALUE val)
 void CIRCUIT::CompareNo_Fault() {
     cout << "number of faults: " << this->Flist.size() << endl
          << "number of checkpoint faults: " << this->FlistCP.size() << endl
-         << static_cast<double>(this->FlistCP.size()) / this->Flist.size() * 100 << "% of faults have been collapsed\n";
+         << static_cast<double>(this->Flist.size() - this->FlistCP.size()) / this->Flist.size() * 100 << "% of faults have been collapsed\n";
 }

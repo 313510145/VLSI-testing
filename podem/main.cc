@@ -192,7 +192,7 @@ int main(int argc, char ** argv)
         if (option.retrieve("bt")) {
             Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
         }
-        // Circuit.BFaultAtpg(option.retrieve("output"));
+        Circuit.BFaultAtpg(option.retrieve("output"));
     }
     else {
         Circuit.GenerateAllFaultList();
@@ -207,7 +207,7 @@ int main(int argc, char ** argv)
             if (option.retrieve("bt")) {
                 Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
             }
-            //stuck-at fualt ATPG
+            //stuck-at fault ATPG
             Circuit.Atpg();
         }
     }

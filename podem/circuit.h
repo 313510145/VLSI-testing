@@ -128,11 +128,13 @@ class CIRCUIT
         void BFaultSim();
         void Atpg(const bool& append = false);
         void RandomPatternAtpg(const string& output);
+        void BFaultAtpg(const string& output);
         void SortFaninByLevel();
         bool CheckTest();
         bool TraceUnknownPath(GATEPTR gptr);
         bool FaultEvaluate(FAULT* fptr);
         ATPG_STATUS Podem(FAULT* fptr, unsigned &total_backtrack_num);
+        ATPG_STATUS BFaultPodem(FAULT* fptr, unsigned &total_backtrack_num, GATE* gptr);
         ATPG_STATUS SetUniqueImpliedValue(FAULT* fptr);
         ATPG_STATUS BackwardImply(GATEPTR gptr, VALUE value);
         GATEPTR FindPropagateGate();
