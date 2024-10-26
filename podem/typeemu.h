@@ -6,8 +6,8 @@
 enum VALUE {S0, S1, X, D, B, ILLIGAL};
 enum VALUE_3 {S0_3 = 0b00, X_3 = 0b01, S1_3 = 0b11};
 //good/faulty D = 1/0, B = D' = 0/1
-enum GATEFUNC                  { G_PI,   G_PO,   G_PPI,   G_PPO,   G_NOT,   G_AND,   G_NAND,   G_OR,   G_NOR,   G_DFF,   G_BUF,   G_BAD };
-const std::string GATENAME[] = {"G_PI", "G_PO", "G_PPI", "G_PPO", "G_NOT", "G_AND", "G_NAND", "G_OR", "G_NOR", "G_DFF", "G_BUF", "G_BAD"};
+enum GATEFUNC                  { G_PI,   G_PO,   G_PPI,   G_PPO,   G_NOT,   G_AND,   G_NAND,   G_OR,   G_NOR,   G_DFF,   G_BUF, G_BAD};
+const std::string GATENAME[] = {"G_PI", "G_PO", "G_PPI", "G_PPO", "G_NOT", "G_AND", "G_NAND", "G_OR", "G_NOR", "G_DFF", "G_BUF"};
 enum FLAGS { ALL_ASSIGNED, MARKED, FAULT_INJECTED, FAULTY, SCHEDULED, OUTPUT, NOT_IN_PATH, NumFlags };
 enum ATPG_STATUS { TRUE, CONFLICT, FALSE };
 enum FAULT_STATUS { UNKNOWN, DETECTED, REDUNDANT, ABORT };
