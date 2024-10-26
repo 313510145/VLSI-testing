@@ -295,7 +295,7 @@ void CIRCUIT::BFaultSim() {
     return;
 }
 
-//stuck-at fualt PODEM ATPG (fault dropping)
+//stuck-at fault PODEM ATPG (fault dropping)
 void CIRCUIT::Atpg(const bool& append) {
     cout << "Run stuck-at fault ATPG" << endl;
     unsigned i, total_backtrack_num(0), pattern_num(0);
