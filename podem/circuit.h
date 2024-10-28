@@ -150,7 +150,9 @@ class CIRCUIT
         void MarkOutputGate();
         void MarkPropagateTree(GATEPTR gptr);
         void FaultSimVectors();
+        void FaultCPSimVectors();
         void FaultSim();
+        void FaultCPSim();
         void FaultSimEvaluate(GATE* gptr);
         bool CheckFaultyGate(FAULT* fptr);
         void InjectFaultValue(GATEPTR gptr, unsigned idx,VALUE value);

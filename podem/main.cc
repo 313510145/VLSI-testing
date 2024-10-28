@@ -164,6 +164,12 @@ int main(int argc, char ** argv)
         Circuit.GenerateAllFaultList();
         Circuit.GenerateCheckPointFaultList();
         Circuit.CompareNo_Fault();
+        if (option.retrieve("fsim")) {
+            Circuit.SortFaninByLevel();
+            Circuit.MarkOutputGate();
+            Circuit.InitPattern(option.retrieve("input"));
+            Circuit.FaultCPSimVectors();
+        }
     }
     else if (option.retrieve("bridging")) {
         Circuit.GenerateBridgingFaultList();
