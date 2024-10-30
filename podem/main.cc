@@ -59,6 +59,8 @@ int SetupOption(int argc, char ** argv)
             "assignment 4", 0);
     option.enroll("bridging", GetLongOpt::NoValue,
             "assignment 4", 0);
+    option.enroll("check_point_atpg", GetLongOpt::NoValue,
+            "run ATPG for checkpoint fault list", 0);
     option.enroll("bridging_fsim", GetLongOpt::NoValue,
             "assignment 5", 0);
     option.enroll("random_pattern", GetLongOpt::NoValue,
@@ -164,12 +166,6 @@ int main(int argc, char ** argv)
         Circuit.GenerateAllFaultList();
         Circuit.GenerateCheckPointFaultList();
         Circuit.CompareNo_Fault();
-        if (option.retrieve("fsim")) {
-            Circuit.SortFaninByLevel();
-            Circuit.MarkOutputGate();
-            Circuit.InitPattern(option.retrieve("input"));
-            Circuit.FaultCPSimVectors();
-        }
     }
     else if (option.retrieve("bridging")) {
         Circuit.GenerateBridgingFaultList();
@@ -201,7 +197,13 @@ int main(int argc, char ** argv)
         Circuit.BFaultAtpg(option.retrieve("output"));
     }
     else {
-        Circuit.GenerateAllFaultList();
+        if (option.retrieve("check_point_atpg")) {
+            Circuit.GenerateCheckPointFaultList();
+            Circuit.AssignCheckPointFaultList();
+        }
+        else {
+            Circuit.GenerateAllFaultList();
+        }
         Circuit.SortFaninByLevel();
         Circuit.MarkOutputGate();
         if (option.retrieve("fsim")) {

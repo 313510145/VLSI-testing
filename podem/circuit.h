@@ -122,6 +122,7 @@ class CIRCUIT
         //defined in atpg.cc
         void GenerateAllFaultList();
         void GenerateCheckPointFaultList();
+        void AssignCheckPointFaultList();
         void GenerateBridgingFaultList();
         void OutputBridgingFaultList(const string& output);
         void ParallelBFaultSimVectors();
@@ -150,9 +151,7 @@ class CIRCUIT
         void MarkOutputGate();
         void MarkPropagateTree(GATEPTR gptr);
         void FaultSimVectors();
-        void FaultCPSimVectors();
         void FaultSim();
-        void FaultCPSim();
         void FaultSimEvaluate(GATE* gptr);
         bool CheckFaultyGate(FAULT* fptr);
         void InjectFaultValue(GATEPTR gptr, unsigned idx,VALUE value);

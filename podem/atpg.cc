@@ -76,6 +76,11 @@ void CIRCUIT::GenerateCheckPointFaultList() {
     return;
 }
 
+void CIRCUIT::AssignCheckPointFaultList() {
+    Flist = FlistCP;
+    UFlist = UFlistCP;
+}
+
 void CIRCUIT::GenerateBridgingFaultList() {
     cout << "Generate bridging fault list" << endl;
     register unsigned i;
