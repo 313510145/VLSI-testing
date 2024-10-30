@@ -59,8 +59,8 @@ int SetupOption(int argc, char ** argv)
             "assignment 4", 0);
     option.enroll("bridging", GetLongOpt::NoValue,
             "assignment 4", 0);
-    option.enroll("check_point_atpg", GetLongOpt::NoValue,
-            "run ATPG for checkpoint fault list", 0);
+    option.enroll("checkpoint", GetLongOpt::NoValue,
+            "run for checkpoint fault list", 0);
     option.enroll("bridging_fsim", GetLongOpt::NoValue,
             "assignment 5", 0);
     option.enroll("random_pattern", GetLongOpt::NoValue,
@@ -197,7 +197,7 @@ int main(int argc, char ** argv)
         Circuit.BFaultAtpg(option.retrieve("output"));
     }
     else {
-        if (option.retrieve("check_point_atpg")) {
+        if (option.retrieve("checkpoint")) {
             Circuit.GenerateCheckPointFaultList();
             Circuit.AssignCheckPointFaultList();
         }
