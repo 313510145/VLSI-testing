@@ -8,19 +8,24 @@ using namespace std;
 extern GetLongOpt option;
 
 // fault simulation test patterns
-void CIRCUIT::FaultSimVectors()
-{
+void CIRCUIT::FaultSimVectors(const bool& trace) {
     cout << "Run stuck-at fault simulation" << endl;
     unsigned pattern_num(0);
-    if(!Pattern.eof()){ // Readin the first vector
+    if (!Pattern.eof()) { //readin the first vector
         while(!Pattern.eof()){
             ++pattern_num;
             Pattern.ReadNextPattern();
             //fault-free simulation
             SchedulePI();
             LogicSim();
+            if (trace) {
+                cout << "\tlogic simulation:\n";
+                for (unsigned int i = 0; i < No_Gate(); i++) {
+                    cout << "\t\t" << Gate(i)->GetName() << " = " << VALUE_NAME[Gate(i)->GetValue()] << endl;
+                }
+            }
             //single pattern parallel fault simulation
-            FaultSim();
+            FaultSim(trace);
         }
     }
 
@@ -65,8 +70,7 @@ void CIRCUIT::FaultSimVectors()
 
 //single pattern parallel fault simulation
 //parallel fault number is defined by PatternNum in typeemu.h
-void CIRCUIT::FaultSim()
-{
+void CIRCUIT::FaultSim(const bool& trace) {
     register unsigned i, fault_idx(0);
     GATEPTR gptr;
     FAULT *fptr;
@@ -79,7 +83,7 @@ void CIRCUIT::FaultSim()
 
     //for all undetected faults
     list<FAULT*>::iterator fite;
-    for (fite = UFlist.begin();fite!=UFlist.end();++fite) {
+    for (fite = UFlist.begin(); fite != UFlist.end(); ++fite) {
         fptr = *fite;
         //skip redundant and detected faults
         if (fptr->GetStatus() == REDUNDANT || fptr->GetStatus() == DETECTED) { continue; }
@@ -93,7 +97,8 @@ void CIRCUIT::FaultSim()
         }
         if (!fptr->Is_Branch()) { //stem
             if (!gptr->GetFlag(FAULTY)) {
-                gptr->SetFlag(FAULTY); GateStack.push_front(gptr);
+                gptr->SetFlag(FAULTY);
+                GateStack.push_front(gptr);
             }
             InjectFaultValue(gptr, fault_idx, fptr->GetValue());
             gptr->SetFlag(FAULT_INJECTED);
@@ -109,10 +114,11 @@ void CIRCUIT::FaultSim()
                 continue;
             }
             if (!gptr->GetFlag(FAULTY)) {
-                gptr->SetFlag(FAULTY); GateStack.push_front(gptr);
+                gptr->SetFlag(FAULTY);
+                GateStack.push_front(gptr);
             }
             // add the fault to the simulated list and inject it
-            VALUE fault_type = gptr->Is_Inversion()? NotTable[fptr->GetValue()]: fptr->GetValue();
+            VALUE fault_type = gptr->Is_Inversion() ? NotTable[fptr->GetValue()] : fptr->GetValue();
             InjectFaultValue(gptr, fault_idx, fault_type);
             gptr->SetFlag(FAULT_INJECTED);
             ScheduleFanout(gptr);
@@ -122,9 +128,10 @@ void CIRCUIT::FaultSim()
         //collect PatternNum fault, do fault simulation
         if (fault_idx == PatternNum) {
             //do parallel fault simulation
-            for (i = 0;i<= MaxLevel; ++i) {
+            for (i = 0; i <= MaxLevel; ++i) {
                 while (!Queue[i].empty()) {
-                    gptr = Queue[i].front(); Queue[i].pop_front();
+                    gptr = Queue[i].front();
+                    Queue[i].pop_front();
                     gptr->ResetFlag(SCHEDULED);
                     FaultSimEvaluate(gptr);
                 }
@@ -132,7 +139,7 @@ void CIRCUIT::FaultSim()
 
             // check detection and reset wires' faulty values
             // back to fault-free values
-            for (gite = GateStack.begin();gite != GateStack.end();++gite) {
+            for (gite = GateStack.begin(); gite != GateStack.end(); ++gite) {
                 gptr = *gite;
                 //clean flags
                 gptr->ResetFlag(FAULTY);
@@ -143,8 +150,11 @@ void CIRCUIT::FaultSim()
                         if (simulate_flist[i]->GetStatus() == DETECTED) { continue; }
                         //faulty value != fault-free value && fault-free != X &&
                         //faulty value != X (WireValue1[i] == WireValue2[i])
-                        if (gptr->GetValue() != VALUE(gptr->GetValue1(i)) && gptr->GetValue() != X 
-                                && gptr->GetValue1(i) == gptr->GetValue2(i)) {
+                        if (
+                            gptr->GetValue() != VALUE(gptr->GetValue1(i)) &&
+                            gptr->GetValue() != X &&
+                            gptr->GetValue1(i) == gptr->GetValue2(i)
+                        ) {
                             simulate_flist[i]->SetStatus(DETECTED);
                         }
                     }
@@ -159,9 +169,10 @@ void CIRCUIT::FaultSim()
     //fault sim rest faults
     if (fault_idx) {
         //do parallel fault simulation
-        for (i = 0;i<= MaxLevel; ++i) {
+        for (i = 0; i <= MaxLevel; ++i) {
             while (!Queue[i].empty()) {
-                gptr = Queue[i].front(); Queue[i].pop_front();
+                gptr = Queue[i].front();
+                Queue[i].pop_front();
                 gptr->ResetFlag(SCHEDULED);
                 FaultSimEvaluate(gptr);
             }
@@ -169,7 +180,7 @@ void CIRCUIT::FaultSim()
 
         // check detection and reset wires' faulty values
         // back to fault-free values
-        for (gite = GateStack.begin();gite != GateStack.end();++gite) {
+        for (gite = GateStack.begin(); gite != GateStack.end(); ++gite) {
             gptr = *gite;
             //clean flags
             gptr->ResetFlag(FAULTY);
@@ -180,8 +191,11 @@ void CIRCUIT::FaultSim()
                     if (simulate_flist[i]->GetStatus() == DETECTED) { continue; }
                     //faulty value != fault-free value && fault-free != X &&
                     //faulty value != X (WireValue1[i] == WireValue2[i])
-                    if (gptr->GetValue() != VALUE(gptr->GetValue1(i)) && gptr->GetValue() != X 
-                            && gptr->GetValue1(i) == gptr->GetValue2(i)) {
+                    if (
+                        gptr->GetValue() != VALUE(gptr->GetValue1(i)) &&
+                        gptr->GetValue() != X &&
+                        gptr->GetValue1(i) == gptr->GetValue2(i)
+                    ) {
                         simulate_flist[i]->SetStatus(DETECTED);
                     }
                 }
@@ -192,13 +206,29 @@ void CIRCUIT::FaultSim()
         fault_idx = 0;
     } //end fault simulation
 
-    // remove detected faults
-    for (fite = UFlist.begin();fite != UFlist.end();) {
+    //remove detected faults
+    bool temp = true;
+    if (trace) {
+        cout << "\tdetected fault(s):";
+    }
+    for (fite = UFlist.begin(); fite != UFlist.end();) {
         fptr = *fite;
         if (fptr->GetStatus() == DETECTED || fptr->GetStatus() == REDUNDANT) {
             fite = UFlist.erase(fite);
+            if (trace) {
+                if (temp) {
+                    cout << " " << fptr->GetInputGate()->GetName() << " to " << fptr->GetOutputGate()->GetName() << " (stuck-at-" << VALUE_NAME[fptr->GetValue()] << ")";
+                    temp = false;
+                }
+                else {
+                    cout << ", " << fptr->GetInputGate()->GetName() << " to " << fptr->GetOutputGate()->GetName() << " (stuck-at-" << VALUE_NAME[fptr->GetValue()] << ")";
+                }
+            }
         }
         else { ++fite; }
+    }
+    if (trace) {
+        cout << endl;
     }
     return;
 }

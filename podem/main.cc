@@ -63,6 +63,8 @@ int SetupOption(int argc, char ** argv)
             "run for checkpoint fault list", 0);
     option.enroll("bridging_fsim", GetLongOpt::NoValue,
             "assignment 5", 0);
+    option.enroll("trace", GetLongOpt::NoValue,
+            "print PODEM implementation", 0);
     option.enroll("random_pattern", GetLongOpt::NoValue,
             "assignment 6", 0);
     option.enroll("bridging_atpg", GetLongOpt::NoValue,
@@ -194,12 +196,15 @@ int main(int argc, char ** argv)
         if (option.retrieve("bt")) {
             Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
         }
-        Circuit.BFaultAtpg(option.retrieve("output"));
+        Circuit.BFaultAtpg();
     }
     else {
         if (option.retrieve("checkpoint")) {
             Circuit.GenerateCheckPointFaultList();
             Circuit.AssignCheckPointFaultList();
+        }
+        else if (option.retrieve("trace")) {
+            Circuit.SelectFaultList();
         }
         else {
             Circuit.GenerateAllFaultList();
@@ -209,14 +214,14 @@ int main(int argc, char ** argv)
         if (option.retrieve("fsim")) {
             //stuck-at fault simulator
             Circuit.InitPattern(option.retrieve("input"));
-            Circuit.FaultSimVectors();
+            Circuit.FaultSimVectors(option.retrieve("trace"));
         }
         else {
             if (option.retrieve("bt")) {
                 Circuit.SetBackTrackLimit(atoi(option.retrieve("bt")));
             }
             //stuck-at fault ATPG
-            Circuit.Atpg();
+            Circuit.Atpg(false, option.retrieve("trace"));
         }
     }
     time_end = clock();

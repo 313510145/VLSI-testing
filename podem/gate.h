@@ -4,8 +4,7 @@
 #include "typeemu.h" 
 using namespace std;
 
-class GATE
-{
+class GATE {
     private:
         string Name;
         unsigned ID;
@@ -125,26 +124,42 @@ class GATE
         void ResetWireValue(unsigned i, unsigned idx) { WireValue[i].reset(idx); }
         bool GetWireValue(unsigned i, unsigned idx) { return WireValue[i][idx]; }
         bitset<PatternNum> GetWireValue(unsigned i) { return WireValue[i]; }
-	char GetTransition_t(){
-            if (Value==S0){
-	    	if(Value_t==S0) { return '0'; }
-		else{ return 'R'; }
-	    }
-	    else{
-	    	if(Value_t==S0) { return 'F'; }
-		else{ return '1'; }
-	    }
-	}
-	char GetTransition(){
-            if (Value_t==S0){
-	    	if(Value==S0) { return '0'; }
-		else{ return 'R'; }
-	    }
-	    else{
-	    	if(Value==S0) { return 'F'; }
-		else{ return '1'; }
-	    }
-	}
+        char GetTransition_t() {
+            if (Value == S0) {
+                if (Value_t == S0) {
+                    return '0';
+                }
+                else {
+                    return 'R';
+                }
+            }
+            else {
+                if (Value_t==S0) {
+                    return 'F';
+                }
+                else {
+                    return '1';
+                }
+            }
+        }
+        char GetTransition() {
+            if (Value_t == S0) {
+                if (Value == S0) {
+                    return '0';
+                }
+                else {
+                    return 'R';
+                }
+            }
+            else {
+                if (Value == S0) {
+                    return 'F';
+                }
+                else {
+                    return '1';
+                }
+            }
+        }
 };
 
 #endif

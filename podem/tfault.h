@@ -2,8 +2,7 @@
 #define TFAULT_H
 #include "gate.h"
 
-class TFAULT
-{
+class TFAULT {
     private:
         VALUE Value;
         GATE* Input;
@@ -13,8 +12,7 @@ class TFAULT
         unsigned EqvFaultNum; //equivalent fault number (includes itself)
         FAULT_STATUS Status;
     public:
-        TFAULT(GATE* gptr, GATE* ogptr, VALUE value): Value(value), Input(gptr),
-        Output(ogptr), Branch(false), EqvFaultNum(1), Status(UNKNOWN) {}
+        TFAULT(GATE* gptr, GATE* ogptr, VALUE value): Value(value), Input(gptr), Output(ogptr), Branch(false), EqvFaultNum(1), Status(UNKNOWN) {}
         ~TFAULT() {}
         VALUE GetValue() { return Value; }
         GATE* GetInputGate() { return Input; }
@@ -27,7 +25,5 @@ class TFAULT
         void SetStatus(FAULT_STATUS status) { Status = status; }
         FAULT_STATUS GetStatus() { return Status; }
 };
-
-
 
 #endif

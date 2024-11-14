@@ -9,15 +9,11 @@
 #include <cstring>
 using namespace std;
 
-class GetLongOpt
-{
+class GetLongOpt {
     public:
-        enum OptType {
-            NoValue, OptionalValue, MandatoryValue
-    };
+        enum OptType {NoValue, OptionalValue, MandatoryValue};
     private:
-        struct Cell
-        {
+        struct Cell {
             const char *option;  // option name
             OptType type;     // option type
             const char *description;   // a description of option

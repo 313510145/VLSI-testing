@@ -2,8 +2,7 @@
 #define FAULT_H
 #include "gate.h"
 
-class FAULT
-{
+class FAULT {
     private:
         VALUE Value;
         GATE* Input;
@@ -27,7 +26,5 @@ class FAULT
         void SetStatus(FAULT_STATUS status) { Status = status; }
         FAULT_STATUS GetStatus() { return Status; }
 };
-
-
 
 #endif

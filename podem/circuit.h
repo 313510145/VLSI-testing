@@ -8,8 +8,7 @@
 
 typedef GATE* GATEPTR;
 
-class CIRCUIT
-{
+class CIRCUIT {
     private:
         string Name;
         PATTERN Pattern;
@@ -36,6 +35,8 @@ class CIRCUIT
         ListofGateIte QueueIte;
 
         bool FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg);
+        void AddStuckAt0Fault(GATE* gptr);
+        void AddStuckAt1Fault(GATE* gptr);
 
     public:
         //Initialize netlist
@@ -123,26 +124,27 @@ class CIRCUIT
         void GenerateAllFaultList();
         void GenerateCheckPointFaultList();
         void AssignCheckPointFaultList();
+        void SelectFaultList();
         void GenerateBridgingFaultList();
         void OutputBridgingFaultList(const string& output);
         void ParallelBFaultSimVectors();
         void BFaultSim();
-        void Atpg(const bool& append = false);
+        void Atpg(const bool& append = false, const bool& trace = false);
         void RandomPatternAtpg(const string& output);
-        void BFaultAtpg(const string& output);
+        void BFaultAtpg();
         void SortFaninByLevel();
         bool CheckTest();
         bool TraceUnknownPath(GATEPTR gptr);
         bool FaultEvaluate(FAULT* fptr);
-        ATPG_STATUS Podem(FAULT* fptr, unsigned &total_backtrack_num);
+        ATPG_STATUS Podem(FAULT* fptr, unsigned &total_backtrack_num, const bool& trace = false);
         ATPG_STATUS BFaultPodem(FAULT* fptr, unsigned &total_backtrack_num, GATE* gptr);
-        ATPG_STATUS SetUniqueImpliedValue(FAULT* fptr);
-        ATPG_STATUS BackwardImply(GATEPTR gptr, VALUE value);
+        ATPG_STATUS SetUniqueImpliedValue(FAULT* fptr, const bool& trace = false);
+        ATPG_STATUS BackwardImply(GATEPTR gptr, VALUE value, const bool& trace = false);
         GATEPTR FindPropagateGate();
         GATEPTR FindHardestControl(GATEPTR gptr);
         GATEPTR FindEasiestControl(GATEPTR gptr);
-        GATEPTR FindPIAssignment(GATEPTR gptr, VALUE value);
-        GATEPTR TestPossible(FAULT* fptr);
+        GATEPTR FindPIAssignment(GATEPTR gptr, VALUE value, const bool& trace = false);
+        GATEPTR TestPossible(FAULT* fptr, const bool& trace = false);
         void TraceDetectedStemFault(GATEPTR gptr, VALUE val);
 
         void CompareNo_Fault();
@@ -150,41 +152,42 @@ class CIRCUIT
         //defined in fsim.cc
         void MarkOutputGate();
         void MarkPropagateTree(GATEPTR gptr);
-        void FaultSimVectors();
-        void FaultSim();
+        void FaultSimVectors(const bool& trace = false);
+        void FaultSim(const bool& trace = false);
         void FaultSimEvaluate(GATE* gptr);
         bool CheckFaultyGate(FAULT* fptr);
         void InjectFaultValue(GATEPTR gptr, unsigned idx,VALUE value);
 
-	//defined in psim.cc for parallel logic simulation
-	void ParallelLogicSimVectors();
-	unsigned int ParallelLogicSim();
-	unsigned int ParallelEvaluate(GATEPTR gptr);
-	void CompiledParallelEvaluate(ostream& os, GATEPTR gptr);
-	void PrintParallelIOs(unsigned idx);
-	void ScheduleAllPIs();
+        //defined in psim.cc for parallel logic simulation
+        void ParallelLogicSimVectors();
+        unsigned int ParallelLogicSim();
+        unsigned int ParallelEvaluate(GATEPTR gptr);
+        void CompiledParallelEvaluate(ostream& os, GATEPTR gptr);
+        void PrintParallelIOs(unsigned idx);
+        void ScheduleAllPIs();
 
-    void CompiledCodeSimulator(const string& output);
+        void CompiledCodeSimulator(const string& output);
 
-	//defined in stfsim.cc for single pattern single transition-fault simulation
-	void GenerateAllTFaultList();
-	void TFaultSimVectors();
-	void TFaultSim_t();
-	void TFaultSim();
-	bool CheckTFaultyGate(TFAULT* fptr);
-	bool CheckTFaultyGate_t(TFAULT* fptr);
-	VALUE Evaluate_t(GATEPTR gptr);
-	void LogicSim_t();
+        //defined in stfsim.cc for single pattern single transition-fault simulation
+        void GenerateAllTFaultList();
+        void TFaultSimVectors();
+        void TFaultSim_t();
+        void TFaultSim();
+        bool CheckTFaultyGate(TFAULT* fptr);
+        bool CheckTFaultyGate_t(TFAULT* fptr);
+        VALUE Evaluate_t(GATEPTR gptr);
+        void LogicSim_t();
         void PrintTransition();
         void PrintTransition_t();
         void PrintIO_t();
 
-	//defined in tfatpg.cc for transition fault ATPG
-	void TFAtpg();
-	ATPG_STATUS Initialization(GATEPTR gptr, VALUE target, unsigned &total_backtrack_num);
-	ATPG_STATUS BackwardImply_t(GATEPTR gptr, VALUE value);
-	GATEPTR FindPIAssignment_t(GATEPTR gptr, VALUE value);
-	GATEPTR FindEasiestControl_t(GATEPTR gptr);
-	GATEPTR FindHardestControl_t(GATEPTR gptr);
+        //defined in tfatpg.cc for transition fault ATPG
+        void TFAtpg();
+        ATPG_STATUS Initialization(GATEPTR gptr, VALUE target, unsigned &total_backtrack_num);
+        ATPG_STATUS BackwardImply_t(GATEPTR gptr, VALUE value);
+        GATEPTR FindPIAssignment_t(GATEPTR gptr, VALUE value);
+        GATEPTR FindEasiestControl_t(GATEPTR gptr);
+        GATEPTR FindHardestControl_t(GATEPTR gptr);
 };
+
 #endif
