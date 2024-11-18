@@ -154,15 +154,20 @@ void CIRCUIT::GenerateBridgingFaultList() {
     for (i = 0; i < No_Gate(); i++) {
         this->Queue[this->Gate(i)->GetLevel()].push_back(this->Gate(i));
     }
-    for (i = 0; i <= this->MaxLevel; i++) {
+    for (i = 0; i < this->MaxLevel; i++) {
         while (!Queue[i].empty()) {
             gptr = Queue[i].front();
             Queue[i].pop_front();
             if (!Queue[i].empty()) {
-                bfptr = new BFAULT(gptr, Queue[i].front(), S0);
-                this->BFlist.push_back(bfptr);
-                bfptr = new BFAULT(gptr, Queue[i].front(), S1);
-                this->BFlist.push_back(bfptr);
+                if (
+                    gptr->GetFunction() != G_PO &&
+                    Queue[i].front()->GetFunction() != G_PO
+                ) {
+                    bfptr = new BFAULT(gptr, Queue[i].front(), S0);
+                    this->BFlist.push_back(bfptr);
+                    bfptr = new BFAULT(gptr, Queue[i].front(), S1);
+                    this->BFlist.push_back(bfptr);
+                }
             }
         }
     }
