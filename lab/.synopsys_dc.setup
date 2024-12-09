@@ -1,0 +1,14 @@
+
+set company "Testing Labs, IEE, NCTU"
+set designer "Testing groups"
+
+set search_path "/CAD/CBDK018_TSMC_Artisan/CIC/SynopsysDC $search_path"
+set link_library "dw_foundation.sldb l90sprvt_typ.db"
+set target_library "l90sprvt_typ.db"
+set symbol_library "generic.sdb"
+set synthetic_library "dw_foundation.sldb"
+
+set hdlin_translate_off_skip_text "TRUE"
+set edifout_netlist_only "TRUE"
+set verilogout_no_tri true
+set plot_command {lpr -Plp}
