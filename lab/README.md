@@ -270,9 +270,15 @@ set_fault_type stuck
 create_patterns -auto
 
 # 18. Report scan statistics
-report_statistics
+report_statistics > <circuit>_scan_TS.stats
 
-# 19. Exit the Tessent session
+# 19. Write the faults and patterns to files
+report_faults -all > <circuit>_scan_TS_faults.rpt
+identify_redundant_faults > <circuit>_scan_TS_redundant_faults.rpt
+write_patterns <circuit>_scan_TS.pat -verilog –proc –replace
+write_patterns <circuit>_scan_TS_tstl2.pat -TSTL2 –replace
+
+# 20. Exit the Tessent session
 exit
 ```
 
@@ -309,9 +315,15 @@ set_fault_type stuck
 create_patterns -auto
 
 # 10. Report scan statistics
-report_statistics
+report_statistics > <circuit>_DC_scan_TS.stats
 
-# 11. Exit the Tessent session
+# 11. Write the faults and patterns to files
+report_faults -all > <circuit>_DC_scan_TS_faults.rpt
+identify_redundant_faults > <circuit>_DC_scan_TS_redundant_faults.rpt
+write_patterns <circuit>_DC_scan_TS.pat -verilog –proc –replace
+write_patterns <circuit>_DC_scan_TS_tstl2.pat -TSTL2 –replace
+
+# 12. Exit the Tessent session
 exit
 ```
 
