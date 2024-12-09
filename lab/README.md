@@ -325,6 +325,6 @@ exit
 4. IPCORE Lab Slide 2006, Tian-Sheuan Chang.
 5. VLSI Testing Course Slide, Jing-Jia Liou.
 6. CIC Training Center Slide, Hsin-Jung Huang.
-7. Mentor Graphics (Siemens), **Tessent Scan and ATPG User’s Manual**, v2019.3.
-8. Synopsys, **TetraMAX ATPG User Guide**, J-2014.09-SP1.
-9. Synopsys, **TestMAX ATPG User Guide**, P-2019.03.
+7. Mentor Graphics (Siemens), Tessent Scan and ATPG User’s Manual, v2019.3.
+8. Synopsys, TetraMAX ATPG User Guide, J-2014.09-SP1.
+9. Synopsys, TestMAX ATPG User Guide, P-2019.03.
