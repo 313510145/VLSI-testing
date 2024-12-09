@@ -2,7 +2,7 @@
 
 This README outlines the synthesis and testing process for a circuit using **Synopsys Design Compiler (DC)**, **TetraMax**, and **Tessent**. The flow covers synthesis (with and without scan chain insertion), ATPG generation, and fault simulation.
 
-> **Note:** Replace `<circuit>` with your actual Verilog file name (e.g., `pre_norm` or `s38584_seq`) and `<clk>` with the actual clock signal name (e.g., `clk` or `CK`) before executing the commands.
+**Note:** Replace `<circuit>` with your actual Verilog file name (e.g., `pre_norm` or `s38584_seq`) and `<clk>` with the actual clock signal name (e.g., `clk` or `CK`) before executing the commands.
 
 ---
 
