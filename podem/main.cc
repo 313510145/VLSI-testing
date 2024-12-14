@@ -144,7 +144,7 @@ int main(int argc, char ** argv)
     }
     else if (option.retrieve("ass0")) {
         cout << "number of inputs: " << Circuit.No_PI() << endl
-                << "number of outputs: " << Circuit.No_PO() << endl;
+             << "number of outputs: " << Circuit.No_PO() << endl;
         Circuit.PrintNo_GateEachType();
         cout << "number of flip-flops (PPIs): " << Circuit.No_PPI() << endl;
         Circuit.PrintNo_Net();
