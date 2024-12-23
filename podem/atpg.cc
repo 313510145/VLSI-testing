@@ -131,6 +131,7 @@ void CIRCUIT::SelectFaultList() {
     if (gptr != this->Netlist.end()) {
         AddStuckAt0Fault(*gptr);
     }
+    //comment individually to trace each fault
     temp = "n60";
     gptr = find_if(
         this->Netlist.begin(),
