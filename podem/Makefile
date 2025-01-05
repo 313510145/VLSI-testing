@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CXX = g++
-CXX_FLAG = -O2 -Wall -DDEBUG -DDEBUG_ATPG -g -std=c++11
+CXX_FLAG = -O3 -Wall -Wextra -DDEBUG -DDEBUG_ATPG -g -std=c++11
 INCLUDE_PATH =
 LIBRARY = -lreadline -lcurses
 MEMORY_USAGE = /usr/bin/time -f "Average memory usage: %K \nMaximum memory usage: %M\n"
@@ -27,6 +27,7 @@ TARGET = atpg
 	$(CXX) -c $(CXX_FLAG) $(INCLUDE_PATH) -o $@ $<
 
 ####### Build rules
+
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
