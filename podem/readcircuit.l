@@ -3,7 +3,7 @@
 %{
 #include "typeemu.h"
 #include "readcircuit.tab.h"
-        
+void cleanup();
 long lineno=1;
 %}
 
@@ -36,6 +36,10 @@ DFF {  return(GDFF);}
 "," { return(COMMA);}
 .  {printf("Unrecognized symbol error at %s in line %ld\n",yytext, lineno);}
 %%
+
+void cleanup() {
+    yylex_destroy();
+}
 
 /* debuggin
 int main(int argc, char ** argv)

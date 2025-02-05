@@ -59,6 +59,7 @@ class CIRCUIT {
             for (unsigned i = 0;i<Netlist.size();++i) { delete Netlist[i]; }
             list<FAULT*>::iterator fite;
             for (fite = Flist.begin();fite!=Flist.end();++fite) { delete *fite; }
+            delete [] Queue;
         }
 
         void AddGate(GATE* gptr) { Netlist.push_back(gptr); }

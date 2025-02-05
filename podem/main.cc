@@ -10,6 +10,7 @@ extern char* yytext;
 extern FILE *yyin;
 extern CIRCUIT Circuit;
 extern int yyparse (void);
+extern void cleanup();
 extern bool ParseError;
 
 extern void Interactive();
@@ -227,5 +228,6 @@ int main(int argc, char ** argv)
     time_end = clock();
     cout << "total CPU time = " << double(time_end - time_init)/CLOCKS_PER_SEC << endl;
     cout << endl;
+    cleanup();
     return 0;
 }
