@@ -9,7 +9,7 @@ extern GetLongOpt option;
 void CIRCUIT::ParallelLogicSimVectors() {
     cout << "Run Parallel Logic simulation" << endl;
     unsigned int pattern_num = 0;
-    unsigned int pattern_idx = 0;
+    unsigned int pattern_idx;
     unsigned int evaluation_num = 0;
     while (!Pattern.eof()) {
         for (pattern_idx = 0; pattern_idx < PatternNum; pattern_idx++) {
@@ -203,7 +203,7 @@ void CIRCUIT::CompiledCodeSimulator(const string& output) {
                 << "int main() {\n"
                 << "\tclock_t time_init, time_end;\n"
                 << "\ttime_init = clock();\n";
-    unsigned int pattern_idx = 0;
+    unsigned int pattern_idx;
     while (!Pattern.eof()) {
         for (pattern_idx = 0; pattern_idx < PatternNum; pattern_idx++) {
             if (!Pattern.eof()) {

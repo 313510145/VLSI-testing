@@ -14,16 +14,16 @@ class TFAULT {
     public:
         TFAULT(GATE* gptr, GATE* ogptr, VALUE value): Value(value), Input(gptr), Output(ogptr), Branch(false), EqvFaultNum(1), Status(UNKNOWN) {}
         ~TFAULT() {}
-        VALUE GetValue() { return Value; }
+        VALUE GetValue() const { return Value; }
         GATE* GetInputGate() { return Input; }
         GATE* GetOutputGate() { return Output; }
         void SetBranch(bool b) { Branch = b; }
-        bool Is_Branch() { return Branch; }
+        bool Is_Branch() const { return Branch; }
         void SetEqvFaultNum(unsigned n) { EqvFaultNum = n; }
         void IncEqvFaultNum() { ++EqvFaultNum; }
-        unsigned GetEqvFaultNum() { return EqvFaultNum; }
+        unsigned GetEqvFaultNum() const { return EqvFaultNum; }
         void SetStatus(FAULT_STATUS status) { Status = status; }
-        FAULT_STATUS GetStatus() { return Status; }
+        FAULT_STATUS GetStatus() const { return Status; }
 };
 
 #endif

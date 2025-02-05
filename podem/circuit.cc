@@ -1,5 +1,6 @@
 #include <iostream> 
 #include <stack>
+#include <numeric>
 //#include <alg.h>
 #include "circuit.h"
 #include "GetLongOpt.h"
@@ -10,7 +11,7 @@ extern GetLongOpt option;
 bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg) {
     GATE* current_gate = ps.back();
     if (current_gate == eg) {
-        for (vector<GATE*>::iterator it = ps.begin(); it != ps.end(); it++) {
+        for (vector<GATE*>::iterator it = ps.begin(); it != ps.end(); ++it) {
             if (it != ps.begin()) {
                 cout << " ";
             }
@@ -22,9 +23,8 @@ bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg
         return true;
     }
     bool path_found = false;
-    GATE* next_gate;
     for (unsigned int i = 0; i < current_gate->No_Fanout(); i++) {
-        next_gate = current_gate->Fanout(i);
+        GATE* next_gate = current_gate->Fanout(i);
         if (!next_gate->GetFlag(NOT_IN_PATH)) {
             ps.push_back(next_gate);
             bool temp = FindPath(ps, pn, eg);
@@ -41,16 +41,20 @@ bool CIRCUIT::FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg
 }
 
 double CIRCUIT::AverageNo_Fanout() {
-    unsigned int fanout_num = 0;
-    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
-        fanout_num += (*it)->No_Fanout();
-    }
+    unsigned int fanout_num = accumulate(
+        this->Netlist.begin(),
+        this->Netlist.end(),
+        0,
+        [](unsigned int sum, const GATE* gptr) {
+            return sum + gptr->No_Fanout();
+        }
+    );
     return (static_cast<double>(fanout_num) / this->Netlist.size());
 }
 
 void CIRCUIT::PrintNo_GateEachType() {
     unsigned int gate_num[G_BAD] = {0};
-    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); ++it) {
         gate_num[(*it)->GetFunction()]++;
     }
     cout << "total number of gates including inverter, or, nor, and, nand: " << gate_num[G_NOT] + gate_num[G_OR] + gate_num[G_NOR] + gate_num[G_AND] + gate_num[G_NAND] << endl
@@ -63,7 +67,7 @@ void CIRCUIT::PrintNo_GateEachType() {
 
 void CIRCUIT::PrintNo_Net() {
     unsigned int signal_net_num = 0, branch_net_num = 0, stem_net_num = 0;
-    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+    for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); ++it) {
         unsigned int temp = (*it)->No_Fanout();
         if (temp > 1) {
             signal_net_num += temp + 1;
@@ -81,7 +85,8 @@ void CIRCUIT::PrintNo_Net() {
 }
 
 void CIRCUIT::PrintAllPath(const string& start, const string& end) {
-    GATE *start_gate = nullptr, *end_gate = nullptr;
+    GATE* start_gate = nullptr;
+    const GATE* end_gate = nullptr;
     for (unsigned int i = 0; i < this->PIlist.size(); i++) {
         if (this->PIGate(i)->GetName() == start) {
             start_gate = this->PIGate(i);
@@ -100,7 +105,7 @@ void CIRCUIT::PrintAllPath(const string& start, const string& end) {
         unsigned int path_num = 0;
         FindPath(path_stack, path_num, end_gate);
         cout << "The paths from " << start << " to " << end << ": " << path_num << endl;
-        for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); it++) {
+        for (vector<GATE*>::iterator it = this->Netlist.begin(); it != this->Netlist.end(); ++it) {
             if ((*it)->GetFlag(NOT_IN_PATH)) {
                 (*it)->ResetFlag(NOT_IN_PATH);
             }
@@ -122,7 +127,7 @@ void CIRCUIT::GenerateRandomPattern(const string& num, const string& output, con
         exit(-1);
     }
     srand(time(NULL));
-    for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
+    for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); ++it) {
         if (it != this->PIlist.begin()) {
             output_file << " ";
         }
@@ -159,9 +164,8 @@ void CIRCUIT::GenerateRandomPattern(const string& num, const string& output, con
 
 void CIRCUIT::FanoutList() {
     unsigned i = 0, j;
-    GATE* gptr;
     for (; i < No_Gate(); i++) {
-        gptr = Gate(i);
+        GATE* gptr = Gate(i);
         for (j = 0; j < gptr->No_Fanin(); j++) {
             gptr->Fanin(j)->AddOutput_list(gptr);
         }
@@ -170,10 +174,10 @@ void CIRCUIT::FanoutList() {
 }
 
 void CIRCUIT::Levelize() {
-    list<GATE*> Queue;
+    list<GATE*> queue;
     GATE* gptr;
     GATE* out;
-    unsigned int j = 0;
+    unsigned int j;
     for (unsigned int i = 0; i < No_PI(); i++) {
         gptr = PIGate(i);
         gptr->SetLevel(0);
@@ -183,7 +187,7 @@ void CIRCUIT::Levelize() {
                 out->IncCount();
                 if (out->GetCount() == out->No_Fanin()) {
                     out->SetLevel(1);
-                    Queue.push_back(out);
+                    queue.push_back(out);
                 }
             }
         }
@@ -197,16 +201,16 @@ void CIRCUIT::Levelize() {
                 out->IncCount();
                 if (out->GetCount() == out->No_Fanin()) {
                     out->SetLevel(1);
-                    Queue.push_back(out);
+                    queue.push_back(out);
                 }
             }
         }
     }
-    int l1, l2;
-    while (!Queue.empty()) {
-        gptr = Queue.front();
-        Queue.pop_front();
-        l2 = gptr->GetLevel();
+    int l1;
+    while (!queue.empty()) {
+        gptr = queue.front();
+        queue.pop_front();
+        int l2 = gptr->GetLevel();
         for (j = 0; j < gptr->No_Fanout(); j++) {
             out = gptr->Fanout(j);
             if (out->GetFunction() != G_PPI) {
@@ -216,7 +220,7 @@ void CIRCUIT::Levelize() {
                 }
                 out->IncCount();
                 if (out->GetCount() == out->No_Fanin()) {
-                    Queue.push_back(out);
+                    queue.push_back(out);
                 }
             }
         }
@@ -229,7 +233,7 @@ void CIRCUIT::Levelize() {
 
 void CIRCUIT::Check_Levelization() {
     GATE* gptr;
-    GATE* in;
+    const GATE* in;
     unsigned int i, j;
     for (i = 0; i < No_Gate(); i++) {
         gptr = Gate(i);
@@ -274,10 +278,9 @@ void CIRCUIT::SetMaxLevel() {
 //Setup the list of PI PPI PO PPO
 void CIRCUIT::SetupIO_ID() {
     unsigned int i = 0;
-    GATE* gptr;
     vector<GATE*>::iterator Circuit_ite = Netlist.begin();
-    for (; Circuit_ite != Netlist.end(); Circuit_ite++, i++) {
-        gptr = (*Circuit_ite);
+    for (; Circuit_ite != Netlist.end(); ++Circuit_ite, ++i) {
+        GATE* gptr = (*Circuit_ite);
         gptr->SetID(i);
         switch (gptr->GetFunction()) {
             case G_PI:

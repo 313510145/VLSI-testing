@@ -34,21 +34,25 @@ class CIRCUIT {
         ListofGate PropagateTree;
         ListofGateIte QueueIte;
 
-        bool FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg);
+        static bool FindPath(vector<GATE*>& ps, unsigned int& pn, const GATE* const eg);
         void AddStuckAt0Fault(GATE* gptr);
         void AddStuckAt1Fault(GATE* gptr);
 
     public:
         //Initialize netlist
         CIRCUIT(): MaxLevel(0), BackTrackLimit(10000) {
+            Queue = nullptr;
             Netlist.reserve(32768);
             PIlist.reserve(128);
             POlist.reserve(512);
             PPIlist.reserve(2048);
             PPOlist.reserve(2048);
         }
-        CIRCUIT(unsigned NO_GATE, unsigned NO_PI = 128, unsigned NO_PO = 512,
+        explicit CIRCUIT(unsigned NO_GATE, unsigned NO_PI = 128, unsigned NO_PO = 512,
                 unsigned NO_PPI = 2048, unsigned NO_PPO = 2048) {
+            Queue = nullptr;
+            MaxLevel = 0;
+            BackTrackLimit = 10000;
             Netlist.reserve(NO_GATE);
             PIlist.reserve(NO_PI);
             POlist.reserve(NO_PO);
@@ -63,9 +67,9 @@ class CIRCUIT {
         }
 
         void AddGate(GATE* gptr) { Netlist.push_back(gptr); }
-        void SetName(string n){ Name = n;}
-        string GetName(){ return Name;}
-        int GetMaxLevel(){ return MaxLevel;}
+        void SetName(const string& n){ Name = n;}
+        string GetName() const { return Name; }
+        int GetMaxLevel() const { return MaxLevel; }
         void SetBackTrackLimit(unsigned bt) { BackTrackLimit = bt; }
 
         //Access the gates by indexes
@@ -74,11 +78,11 @@ class CIRCUIT {
         GATE* POGate(unsigned index) { return POlist[index]; }
         GATE* PPIGate(unsigned index) { return PPIlist[index]; }
         GATE* PPOGate(unsigned index) { return PPOlist[index]; }
-        unsigned No_Gate() { return Netlist.size(); }
-        unsigned No_PI() { return PIlist.size(); }
-        unsigned No_PO() { return POlist.size(); }
-        unsigned No_PPI() { return PPIlist.size(); }
-        unsigned No_PPO() { return PPOlist.size(); }
+        unsigned No_Gate() const { return Netlist.size(); }
+        unsigned No_PI() const { return PIlist.size(); }
+        unsigned No_PO() const { return POlist.size(); }
+        unsigned No_PPI() const { return PPIlist.size(); }
+        unsigned No_PPO() const { return PPOlist.size(); }
 
         double AverageNo_Fanout();
 
@@ -118,8 +122,8 @@ class CIRCUIT {
         void ModifiedLogicSim();
         void PrintIO();
         void ModifiedPrintIO();
-        VALUE Evaluate(GATEPTR gptr);
-        bitset<2> ModifiedEvaluate(GATEPTR gptr);
+        static VALUE Evaluate(GATEPTR gptr);
+        static bitset<2> ModifiedEvaluate(GATEPTR gptr);
 
         //defined in atpg.cc
         void GenerateAllFaultList();
@@ -135,20 +139,20 @@ class CIRCUIT {
         void BFaultAtpg();
         void SortFaninByLevel();
         bool CheckTest();
-        bool TraceUnknownPath(GATEPTR gptr);
-        bool FaultEvaluate(FAULT* fptr);
+        static bool TraceUnknownPath(GATEPTR gptr);
+        static bool FaultEvaluate(FAULT* fptr);
         ATPG_STATUS Podem(FAULT* fptr, unsigned &total_backtrack_num, const bool& trace = false);
         ATPG_STATUS BFaultPodem(FAULT* fptr, unsigned &total_backtrack_num, GATE* gptr);
         ATPG_STATUS SetUniqueImpliedValue(FAULT* fptr, const bool& trace = false);
         ATPG_STATUS BackwardImply(GATEPTR gptr, VALUE value, const bool& trace = false);
         GATEPTR FindPropagateGate();
-        GATEPTR FindHardestControl(GATEPTR gptr);
-        GATEPTR FindEasiestControl(GATEPTR gptr);
-        GATEPTR FindPIAssignment(GATEPTR gptr, VALUE value, const bool& trace = false);
+        static GATEPTR FindHardestControl(GATEPTR gptr);
+        static GATEPTR FindEasiestControl(GATEPTR gptr);
+        static GATEPTR FindPIAssignment(GATEPTR gptr, VALUE value, const bool& trace = false);
         GATEPTR TestPossible(FAULT* fptr, const bool& trace = false);
-        void TraceDetectedStemFault(GATEPTR gptr, VALUE val);
+        static void TraceDetectedStemFault(GATEPTR gptr, VALUE val);
 
-        void CompareNo_Fault();
+        void CompareNo_Fault() const;
 
         //defined in fsim.cc
         void MarkOutputGate();
@@ -156,8 +160,8 @@ class CIRCUIT {
         void FaultSimVectors(const bool& trace = false);
         void FaultSim(const bool& trace = false);
         void FaultSimEvaluate(GATE* gptr);
-        bool CheckFaultyGate(FAULT* fptr);
-        void InjectFaultValue(GATEPTR gptr, unsigned idx,VALUE value);
+        static bool CheckFaultyGate(FAULT* fptr);
+        static void InjectFaultValue(GATEPTR gptr, unsigned idx,VALUE value);
 
         //defined in psim.cc for parallel logic simulation
         void ParallelLogicSimVectors();
@@ -174,9 +178,9 @@ class CIRCUIT {
         void TFaultSimVectors();
         void TFaultSim_t();
         void TFaultSim();
-        bool CheckTFaultyGate(TFAULT* fptr);
-        bool CheckTFaultyGate_t(TFAULT* fptr);
-        VALUE Evaluate_t(GATEPTR gptr);
+        static bool CheckTFaultyGate(TFAULT* fptr);
+        static bool CheckTFaultyGate_t(TFAULT* fptr);
+        static VALUE Evaluate_t(GATEPTR gptr);
         void LogicSim_t();
         void PrintTransition();
         void PrintTransition_t();
@@ -186,9 +190,9 @@ class CIRCUIT {
         void TFAtpg();
         ATPG_STATUS Initialization(GATEPTR gptr, VALUE target, unsigned &total_backtrack_num);
         ATPG_STATUS BackwardImply_t(GATEPTR gptr, VALUE value);
-        GATEPTR FindPIAssignment_t(GATEPTR gptr, VALUE value);
-        GATEPTR FindEasiestControl_t(GATEPTR gptr);
-        GATEPTR FindHardestControl_t(GATEPTR gptr);
+        static GATEPTR FindPIAssignment_t(GATEPTR gptr, VALUE value);
+        static GATEPTR FindEasiestControl_t(GATEPTR gptr);
+        static GATEPTR FindHardestControl_t(GATEPTR gptr);
 };
 
 #endif

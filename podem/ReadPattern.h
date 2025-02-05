@@ -12,7 +12,7 @@ class PATTERN {
         int no_pi_infile;
     public:
         PATTERN(): no_pi_infile(0) {}
-        void Initialize(char* InFileName, int no_pi, string TAG);
+        void Initialize(char* InFileName, int no_pi, const string& TAG);
         //Assign next input pattern to PI
         void ReadNextPattern();
         void FeedNextPattern();

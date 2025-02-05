@@ -95,11 +95,9 @@ void CIRCUIT::SchedulePPI()
 }
 
 //set all PPI as 0
-void CIRCUIT::SetPPIZero()
-{
-    GATE* gptr;
-    for (unsigned i = 0;i < No_PPI();i++) {
-        gptr = PPIGate(i);
+void CIRCUIT::SetPPIZero() {
+    for (unsigned int i = 0; i < No_PPI(); i++) {
+        GATE* gptr = PPIGate(i);
         if (gptr->GetValue() != S0) {
             gptr->SetFlag(SCHEDULED);
             gptr->SetValue(S0);
@@ -182,8 +180,7 @@ bitset<2> CIRCUIT::ModifiedEvaluate(GATEPTR gptr) {
 
 extern GATE* NameToGate(string);
 
-void PATTERN::Initialize(char* InFileName, int no_pi, string TAG)
-{
+void PATTERN::Initialize(char* InFileName, int no_pi, const string& TAG) {
     patterninput.open(InFileName, ios::in);
     if (!patterninput) {
         cout << "Unable to open input pattern file: " << InFileName << endl;
@@ -239,9 +236,8 @@ void PATTERN::ReadNextPattern()
 }
 
 void PATTERN::FeedNextPattern() {
-    int V;
     for (int i = 0; i < no_pi_infile; i++) {
-        V = 2.0 * rand() / (RAND_MAX + 1.0);
+        int V = 2.0 * rand() / (RAND_MAX + 1.0);
         if (V == 0) {
             if (inlist[i]->GetValue() != S0) {
                 inlist[i]->SetFlag(SCHEDULED);

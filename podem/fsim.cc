@@ -33,10 +33,9 @@ void CIRCUIT::FaultSimVectors(const bool& trace) {
     unsigned total_num(0);
     unsigned undetected_num(0), detected_num(0);
     unsigned eqv_undetected_num(0), eqv_detected_num(0);
-    FAULT* fptr;
     list<FAULT*>::iterator fite;
     for (fite = Flist.begin();fite!=Flist.end();++fite) {
-        fptr = *fite;
+        const FAULT* fptr = *fite;
         switch (fptr->GetStatus()) {
             case DETECTED:
                 ++eqv_detected_num;
@@ -203,7 +202,6 @@ void CIRCUIT::FaultSim(const bool& trace) {
             gptr->SetFaultFreeValue();    
         } //end for GateStack
         GateStack.clear();
-        fault_idx = 0;
     } //end fault simulation
 
     //remove detected faults
@@ -289,9 +287,9 @@ bool CIRCUIT::CheckFaultyGate(FAULT* fptr)
     register unsigned i;
     GATEPTR ogptr(fptr->GetOutputGate());
     VALUE ncv(NCV[ogptr->GetFunction()]);
-    GATEPTR fanin, igptr(fptr->GetInputGate());
+    GATEPTR igptr(fptr->GetInputGate());
     for (i = 0;i< ogptr->No_Fanin();++i) {
-        fanin = ogptr->Fanin(i);
+        GATEPTR fanin = ogptr->Fanin(i);
         if (fanin == igptr) { continue; }
         if (fanin->GetValue() != ncv) { return false; }
     }

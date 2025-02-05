@@ -20,12 +20,12 @@ void CIRCUIT::TFAtpg()
     //Prepare the output files
     ofstream OutputStrm;
     if (option.retrieve("output")){
-        OutputStrm.open((char*)option.retrieve("output"),ios::out);
-        if(!OutputStrm){
-              cout << "Unable to open output file: "
-                   << option.retrieve("output") << endl;
-              cout << "Unsaved output!\n";
-              exit(-1);
+        OutputStrm.open(static_cast<const char*>(option.retrieve("output")), ios::out);
+        if (!OutputStrm) {
+            cout << "Unable to open output file: "
+                 << option.retrieve("output") << endl
+                 << "Unsaved output!\n";
+            exit(-1);
         }
     }
 
@@ -337,23 +337,23 @@ GATEPTR CIRCUIT::FindPIAssignment_t(GATEPTR gptr, VALUE value)
 
 
 //serach lowest level unknown fanin
-GATEPTR CIRCUIT::FindEasiestControl_t(GATEPTR gptr)
-{
-    GATEPTR fanin;
-    for (unsigned i = 0;i< gptr->No_Fanin();++i) {
-        fanin = gptr->Fanin(i);
-        if (fanin->GetValue_t() == X) { return fanin; }
+GATEPTR CIRCUIT::FindEasiestControl_t(GATEPTR gptr) {
+    for (unsigned int i = 0; i < gptr->No_Fanin(); ++i) {
+        GATEPTR fanin = gptr->Fanin(i);
+        if (fanin->GetValue_t() == X) {
+            return fanin;
+        }
     }
     return 0;
 }
 
 //serach highest level unknown fanin
-GATEPTR CIRCUIT::FindHardestControl_t(GATEPTR gptr)
-{
-    GATEPTR fanin;
-    for (unsigned i = gptr->No_Fanin();i>0;--i) {
-        fanin = gptr->Fanin(i-1);
-        if (fanin->GetValue_t() == X) { return fanin; }
+GATEPTR CIRCUIT::FindHardestControl_t(GATEPTR gptr) {
+    for (unsigned int i = gptr->No_Fanin(); i > 0; --i) {
+        GATEPTR fanin = gptr->Fanin(i - 1);
+        if (fanin->GetValue_t() == X) {
+            return fanin;
+        }
     }
     return 0;
 }

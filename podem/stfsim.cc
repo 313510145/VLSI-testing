@@ -12,11 +12,11 @@ void CIRCUIT::GenerateAllTFaultList()
 {
     cout << "Generate transition fault list" << endl;
     register unsigned i, j;
-    GATEFUNC fun;
     GATEPTR gptr, fanout;
     TFAULT *fptr;
     for (i = 0;i<No_Gate();++i) {
-        gptr = Netlist[i]; fun = gptr->GetFunction();
+        gptr = Netlist[i];
+        GATEFUNC fun = gptr->GetFunction();
         if (fun == G_PO) { continue; } //skip PO
         //add stem stuck-at 0 fault to TFlist
         fptr = new TFAULT(gptr, gptr, S0);
@@ -97,10 +97,9 @@ void CIRCUIT::TFaultSimVectors()
     unsigned total_num(0);
     unsigned undetected_num(0), detected_num(0);
     unsigned eqv_undetected_num(0), eqv_detected_num(0);
-    TFAULT* fptr;
     list<TFAULT*>::iterator fite;
     for (fite = TFlist.begin();fite!=TFlist.end();++fite) {
-        fptr = *fite;
+        const TFAULT* fptr = *fite;
         switch (fptr->GetStatus()) {
             case DETECTED:
                 ++eqv_detected_num;
@@ -422,14 +421,13 @@ void CIRCUIT::TFaultSim()
 
 
 //check if the transition fault can be propagated 
-bool CIRCUIT::CheckTFaultyGate(TFAULT* fptr)
-{
-    register unsigned i;
+bool CIRCUIT::CheckTFaultyGate(TFAULT* fptr) {
+    register unsigned int i;
     GATEPTR ogptr(fptr->GetOutputGate());
     VALUE ncv(NCV[ogptr->GetFunction()]);
-    GATEPTR fanin, igptr(fptr->GetInputGate());
-    for (i = 0;i< ogptr->No_Fanin();++i) {
-        fanin = ogptr->Fanin(i);
+    GATEPTR igptr(fptr->GetInputGate());
+    for (i = 0; i < ogptr->No_Fanin(); ++i) {
+        GATEPTR fanin = ogptr->Fanin(i);
         if (fanin == igptr) { continue; }
         if (fanin->GetValue() != ncv) { return false; }
     }
@@ -437,14 +435,13 @@ bool CIRCUIT::CheckTFaultyGate(TFAULT* fptr)
 }
 
 //check if the transition fault can be propagated 
-bool CIRCUIT::CheckTFaultyGate_t(TFAULT* fptr)
-{
-    register unsigned i;
+bool CIRCUIT::CheckTFaultyGate_t(TFAULT* fptr) {
+    register unsigned int i;
     GATEPTR ogptr(fptr->GetOutputGate());
     VALUE ncv(NCV[ogptr->GetFunction()]);
-    GATEPTR fanin, igptr(fptr->GetInputGate());
-    for (i = 0;i< ogptr->No_Fanin();++i) {
-        fanin = ogptr->Fanin(i);
+    GATEPTR igptr(fptr->GetInputGate());
+    for (i = 0; i < ogptr->No_Fanin(); ++i) {
+        GATEPTR fanin = ogptr->Fanin(i);
         if (fanin == igptr) { continue; }
         if (fanin->GetValue_t() != ncv) { return false; }
     }
@@ -497,31 +494,27 @@ VALUE CIRCUIT::Evaluate_t(GATEPTR gptr)
     return value;
 }
 
-void CIRCUIT::PrintTransition_t()
-{
-    register unsigned i;
-    GATEPTR gptr;
-    for (i = 0;i<No_Gate();++i) { 
-	    gptr=Gate(i);
-	    cout << gptr->GetName() << ":" << gptr->GetTransition_t() << " "; 
+void CIRCUIT::PrintTransition_t() {
+    register unsigned int i;
+    for (i = 0; i < No_Gate(); ++i) {
+	    GATEPTR gptr = Gate(i);
+	    cout << gptr->GetName() << ":" << gptr->GetTransition_t() << " ";
     }
-    cout << endl;
-    cout << "--------------------";
-    cout << endl;
+    cout << endl
+         << "--------------------"
+         << endl;
     return;
 }
 
-void CIRCUIT::PrintTransition()
-{
-    register unsigned i;
-    GATEPTR gptr;
-    for (i = 0;i<No_Gate();++i) { 
-	    gptr=Gate(i);
+void CIRCUIT::PrintTransition() {
+    register unsigned int i;
+    for (i = 0; i < No_Gate(); ++i) {
+	    GATEPTR gptr = Gate(i);
 	    cout << gptr->GetName() << ":" << gptr->GetTransition() << " "; 
     }
-    cout << endl;
-    cout << "--------------------";
-    cout << endl;
+    cout << endl
+         << "--------------------"
+         << endl;
     return;
 }
 

@@ -6,6 +6,7 @@ using namespace std;
 
 GetLongOpt::GetLongOpt(const char optmark)
 {
+    pname = 0;
     table = last = 0;
     ustring = "[valid options and arguments]";
     enroll_done = 0;
@@ -135,12 +136,10 @@ GetLongOpt::parse(int argc, char * const *argv)
     return optind;
 }
 
-int
-GetLongOpt::parse(char * const str, char * const p)
-{
+int GetLongOpt::parse(char* const str, char* const p) {
     enroll_done = 1;
     char *token = strtok(str, " \t");
-    char *name = p ? p : (char*)"GetLongOpt";
+    const char *name = p ? p : static_cast<const char*>("GetLongOpt");
 
     while ( token ) {
         if ( token[0] != optmarker || token[1] == optmarker ) {
@@ -207,7 +206,7 @@ GetLongOpt::setcell returns
 ------------------------------------------------------------------- */
 
 int
-GetLongOpt::setcell(Cell *c, char *valtoken, char *nexttoken, char *name)
+GetLongOpt::setcell(Cell *c, char *valtoken, char *nexttoken, const char *name) const
 {
     if ( c == 0 ) return -1;
 

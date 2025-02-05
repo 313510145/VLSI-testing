@@ -95,7 +95,7 @@ int main(int argc, char ** argv)
             string::size_type idx = circuit_name.rfind('/');
             if (idx != string::npos) { circuit_name = circuit_name.substr(idx+1); }
             idx = circuit_name.find(".bench");
-            if (idx != string::npos) { circuit_name = circuit_name.substr(0,idx); }
+            if (idx != string::npos) { circuit_name.resize(idx); }
             Circuit.SetName(circuit_name);
         }
     }

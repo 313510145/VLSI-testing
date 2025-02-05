@@ -20,7 +20,7 @@ class GetLongOpt {
             const char *value;   // value of option (string)
             Cell *next;    // pointer to the next cell
 
-            Cell() { option = description = value = 0; next = 0; }
+            Cell() { option = description = value = 0; type = NoValue; next = 0; }
         };
     private:
         Cell *table;          // option table
@@ -32,10 +32,10 @@ class GetLongOpt {
         Cell *last;           // last entry in option table
 
     private:
-        char *basename(char * const p) const;
-        int setcell(Cell *c, char *valtoken, char *nexttoken, char *p);
+        char *basename(char * const pname) const;
+        int setcell(Cell *c, char *valtoken, char *nexttoken, const char *name) const;
     public:
-        GetLongOpt(const char optmark = '-');
+        explicit GetLongOpt(const char optmark = '-');
         ~GetLongOpt();
 
         int parse(int argc, char * const *argv);

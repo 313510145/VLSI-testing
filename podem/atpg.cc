@@ -12,9 +12,8 @@ void CIRCUIT::AddStuckAt0Fault(GATE* gptr) {
     FAULT* fptr = new FAULT(gptr, gptr, S0);
     this->Flist.push_back(fptr);
     if (gptr->No_Fanout() > 1) {
-        GATE* fanout;
         for (unsigned int i = 0; i < gptr->No_Fanout(); ++i) {
-            fanout = gptr->Fanout(i);
+            GATE* fanout = gptr->Fanout(i);
             fptr = new FAULT(gptr, fanout, S0);
             fptr->SetBranch(true);
             this->Flist.push_back(fptr);
@@ -27,9 +26,8 @@ void CIRCUIT::AddStuckAt1Fault(GATE* gptr) {
     FAULT* fptr = new FAULT(gptr, gptr, S1);
     this->Flist.push_back(fptr);
     if (gptr->No_Fanout() > 1) {
-        GATE* fanout;
         for (unsigned int i = 0; i < gptr->No_Fanout(); ++i) {
-            fanout = gptr->Fanout(i);
+            GATE* fanout = gptr->Fanout(i);
             fptr = new FAULT(gptr, fanout, S1);
             fptr->SetBranch(true);
             this->Flist.push_back(fptr);
@@ -42,12 +40,11 @@ void CIRCUIT::AddStuckAt1Fault(GATE* gptr) {
 void CIRCUIT::GenerateAllFaultList() {
     cout << "Generate stuck-at fault list" << endl;
     register unsigned i, j;
-    GATEFUNC fun;
     GATEPTR gptr, fanout;
     FAULT *fptr;
     for (i = 0; i < No_Gate(); ++i) {
         gptr = Netlist[i];
-        fun = gptr->GetFunction();
+        GATEFUNC fun = gptr->GetFunction();
         if (fun == G_PO) {
             continue;
         } //skip PO
@@ -81,12 +78,11 @@ void CIRCUIT::GenerateAllFaultList() {
 void CIRCUIT::GenerateCheckPointFaultList() {
     cout << "Generate stuck-at fault list with checkpoint theorem" << endl;
     register unsigned i, j;
-    GATEFUNC fun;
     GATEPTR gptr, fanout;
     FAULT *fptr;
     for (i = 0; i < No_Gate(); ++i) {
         gptr = Netlist[i];
-        fun = gptr->GetFunction();
+        GATEFUNC fun = gptr->GetFunction();
         if (fun == G_PI) {
             fptr = new FAULT(gptr, gptr, S0);
             FlistCP.push_front(fptr);
@@ -124,7 +120,7 @@ void CIRCUIT::SelectFaultList() {
     gptr = find_if(
         this->Netlist.begin(),
         this->Netlist.end(),
-        [&temp](GATE* g) {
+        [&temp](const GATE* g) {
             return (g->GetName() == temp);
         }
     );
@@ -136,7 +132,7 @@ void CIRCUIT::SelectFaultList() {
     gptr = find_if(
         this->Netlist.begin(),
         this->Netlist.end(),
-        [&temp](GATE* g) {
+        [&temp](const GATE* g) {
             return (g->GetName() == temp);
         }
     );
@@ -209,10 +205,9 @@ void CIRCUIT::ParallelBFaultSimVectors() {
     unsigned total_num(0);
     unsigned undetected_num(0), detected_num(0);
     unsigned eqv_undetected_num(0), eqv_detected_num(0);
-    BFAULT* bfptr;
     list<BFAULT*>::iterator bfite;
     for (bfite = BFlist.begin(); bfite != BFlist.end(); ++bfite) {
-        bfptr = *bfite;
+        const BFAULT* bfptr = *bfite;
         switch (bfptr->GetStatus()) {
             case DETECTED:
                 ++eqv_detected_num;
@@ -359,7 +354,6 @@ void CIRCUIT::BFaultSim() {
             gptr->SetFaultFreeValue();    
         }
         GateStack.clear();
-        fault_idx = 0;
     }
     for (fite = UBFlist.begin(); fite != UBFlist.end();) {
         bfptr = *fite;
@@ -384,10 +378,10 @@ void CIRCUIT::Atpg(const bool& append, const bool& trace) {
     ofstream OutputStrm;
     if (option.retrieve("output")) {
         if (append) {
-            OutputStrm.open((char*)option.retrieve("output"), ios::app);
+            OutputStrm.open(static_cast<const char*>(option.retrieve("output")), ios::app);
         }
         else {
-            OutputStrm.open((char*)option.retrieve("output"), ios::out);
+            OutputStrm.open(static_cast<const char*>(option.retrieve("output")), ios::out);
         }
         if (!OutputStrm) {
             cout << "Unable to open output file: " << option.retrieve("output") << endl
@@ -433,7 +427,7 @@ void CIRCUIT::Atpg(const bool& append, const bool& trace) {
                 LogicSim();
                 if (trace) {
                     cout << "\tlogic simulation:\n";
-                    for (unsigned int i = 0; i < No_Gate(); i++) {
+                    for (i = 0; i < No_Gate(); i++) {
                         cout << "\t\t" << Gate(i)->GetName() << " = " << VALUE_NAME[Gate(i)->GetValue()] << endl;
                     }
                 }
@@ -505,7 +499,7 @@ void CIRCUIT::RandomPatternAtpg(const string& output) {
         cout << "Can't open pattern file: " << output << endl;
         exit(-1);
     }
-    for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
+    for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); ++it) {
         if (it != this->PIlist.begin()) {
             output_file << " ";
         }
@@ -526,7 +520,7 @@ void CIRCUIT::RandomPatternAtpg(const string& output) {
             cout << "Can't open pattern file: " << output << endl;
             exit(-1);
         }
-        for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); it++) {
+        for (vector<GATE*>::iterator it = this->PIlist.begin(); it != this->PIlist.end(); ++it) {
             output_file << (*it)->GetValue();
         }
         output_file << endl;
@@ -539,10 +533,9 @@ void CIRCUIT::RandomPatternAtpg(const string& output) {
         detected_num = 0;
         eqv_undetected_num = 0;
         eqv_detected_num = 0;
-        FAULT* fptr;
         list<FAULT*>::iterator fite;
         for (fite = Flist.begin(); fite != Flist.end(); ++fite) {
-            fptr = *fite;
+            const FAULT* fptr = *fite;
             switch (fptr->GetStatus()) {
                 case DETECTED:
                     ++eqv_detected_num;
@@ -584,7 +577,7 @@ void CIRCUIT::BFaultAtpg() {
     list<BFAULT*>::iterator fite;
     ofstream OutputStrm;
     if (option.retrieve("output")) {
-        OutputStrm.open((char*)option.retrieve("output"), ios::out);
+        OutputStrm.open(static_cast<const char*>(option.retrieve("output")), ios::out);
         if (!OutputStrm) {
             cout << "Unable to open output file: " << option.retrieve("output") << endl
                  << "Unsaved output!\n";
@@ -627,7 +620,7 @@ void CIRCUIT::BFaultAtpg() {
             BFaultSim();
         }
         else {
-            FAULT* fptr = new FAULT((*fite)->GetInputGate2(), (*fite)->GetInputGate2(), (*fite)->GetValue());
+            fptr = new FAULT((*fite)->GetInputGate2(), (*fite)->GetInputGate2(), (*fite)->GetValue());
             status = BFaultPodem(fptr, total_backtrack_num, (*fite)->GetInputGate1());
             delete fptr;
             switch (status) {
@@ -745,7 +738,7 @@ ATPG_STATUS CIRCUIT::Podem(FAULT* fptr, unsigned &total_backtrack_num, const boo
             LogicSim();
             if (trace) {
                 cout << "\tlogic simulation:\n";
-                for (unsigned int i = 0; i < No_Gate(); i++) {
+                for (i = 0; i < No_Gate(); i++) {
                     cout << "\t\t" << Gate(i)->GetName() << " = " << VALUE_NAME[Gate(i)->GetValue()] << endl;
                 }
             }
@@ -759,7 +752,7 @@ ATPG_STATUS CIRCUIT::Podem(FAULT* fptr, unsigned &total_backtrack_num, const boo
                 LogicSim();
                 if (trace) {
                     cout << "\tlogic simulation:\n";
-                    for (unsigned int i = 0; i < No_Gate(); i++) {
+                    for (i = 0; i < No_Gate(); i++) {
                         cout << "\t\t" << Gate(i)->GetName() << " = " << VALUE_NAME[Gate(i)->GetValue()] << endl;
                     }
                 }
@@ -823,7 +816,7 @@ ATPG_STATUS CIRCUIT::Podem(FAULT* fptr, unsigned &total_backtrack_num, const boo
             LogicSim();
             if (trace) {
                 cout << "\tlogic simulation:\n";
-                for (unsigned int i = 0; i < No_Gate(); i++) {
+                for (i = 0; i < No_Gate(); i++) {
                     cout << "\t\t" << Gate(i)->GetName() << " = " << VALUE_NAME[Gate(i)->GetValue()] << endl;
                 }
             }
@@ -837,7 +830,7 @@ ATPG_STATUS CIRCUIT::Podem(FAULT* fptr, unsigned &total_backtrack_num, const boo
                 LogicSim();
                 if (trace) {
                     cout << "\tlogic simulation:\n";
-                    for (unsigned int i = 0; i < No_Gate(); i++) {
+                    for (i = 0; i < No_Gate(); i++) {
                         cout << "\t\t" << Gate(i)->GetName() << " = " << VALUE_NAME[Gate(i)->GetValue()] << endl;
                     }
                 }
@@ -1319,9 +1312,8 @@ GATEPTR CIRCUIT::FindPIAssignment(GATEPTR gptr, VALUE value, const bool& trace) 
 
 //check if the fault has propagated to PO
 bool CIRCUIT::CheckTest() {
-    VALUE value;
     for (unsigned int i = 0; i < POlist.size(); ++i) {
-        value = POlist[i]->GetValue();
+        VALUE value = POlist[i]->GetValue();
         if (value == B || value == D) {
             return true;
         }
@@ -1358,9 +1350,8 @@ bool CIRCUIT::TraceUnknownPath(GATEPTR gptr) {
     if (gptr->GetFlag(OUTPUT)) {
         return true;
     }
-    GATEPTR fanout;
     for (unsigned int i = 0; i < gptr->No_Fanout(); ++i) {
-        fanout = gptr->Fanout(i);
+        GATEPTR fanout = gptr->Fanout(i);
         if (fanout->GetValue()!=X) {
             continue;
         }
@@ -1373,9 +1364,8 @@ bool CIRCUIT::TraceUnknownPath(GATEPTR gptr) {
 
 //serach lowest level unknown fanin
 GATEPTR CIRCUIT::FindEasiestControl(GATEPTR gptr) {
-    GATEPTR fanin;
     for (unsigned int i = 0; i < gptr->No_Fanin(); ++i) {
-        fanin = gptr->Fanin(i);
+        GATEPTR fanin = gptr->Fanin(i);
         if (fanin->GetValue() == X) {
             return fanin;
         }
@@ -1385,9 +1375,8 @@ GATEPTR CIRCUIT::FindEasiestControl(GATEPTR gptr) {
 
 //serach highest level unknown fanin
 GATEPTR CIRCUIT::FindHardestControl(GATEPTR gptr) {
-    GATEPTR fanin;
     for (unsigned int i = gptr->No_Fanin(); i > 0; --i) {
-        fanin = gptr->Fanin(i-1);
+        GATEPTR fanin = gptr->Fanin(i - 1);
         if (fanin->GetValue() == X) {
             return fanin;
         }
@@ -1439,7 +1428,7 @@ void CIRCUIT::TraceDetectedStemFault(GATEPTR gptr, VALUE val) {
     return;
 }
 
-void CIRCUIT::CompareNo_Fault() {
+void CIRCUIT::CompareNo_Fault() const {
     cout << "number of faults: " << this->Flist.size() << endl
          << "number of checkpoint faults: " << this->FlistCP.size() << endl
          << static_cast<double>(this->Flist.size() - this->FlistCP.size()) / this->Flist.size() * 100 << "% of faults have been collapsed\n";
