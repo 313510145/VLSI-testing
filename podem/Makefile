@@ -1,7 +1,7 @@
 .PHONY: all clean
 
 CXX = g++
-CXX_FLAG = -Wall -Wextra -g -std=c++14
+CXX_FLAG = -Wall -Wextra -std=c++14 -g
 DEBUG_FLAG = -DDEBUG -DDEBUG_ATPG
 INCLUDE_PATH =
 LIBRARY = -lreadline -lcurses
