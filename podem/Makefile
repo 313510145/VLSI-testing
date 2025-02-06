@@ -1,10 +1,11 @@
 .PHONY: all clean
 
 CXX = g++
-CXX_FLAG = -O3 -Wall -Wextra -DDEBUG -DDEBUG_ATPG -g -std=c++11
+CXX_FLAG = -Wall -Wextra -g -std=c++14
+DEBUG_FLAG = -DDEBUG -DDEBUG_ATPG
 INCLUDE_PATH =
 LIBRARY = -lreadline -lcurses
-MEMORY_USAGE = /usr/bin/time -f "Average memory usage: %K \nMaximum memory usage: %M\n"
+# MEMORY_USAGE = /usr/bin/time -f "Average memory usage: %K \nMaximum memory usage: %M\n"
 
 ####### Files
 
