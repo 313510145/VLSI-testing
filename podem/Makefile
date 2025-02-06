@@ -22,17 +22,17 @@ TARGET = atpg
 .SUFFIXES: .o .cpp .cc .cxx
 
 .cpp.o:
-	$(CXX) -c $(CXX_FLAG) $(INCLUDE_PATH) -o $@ $<
+	$(CXX) -c $(CXX_FLAG) $(DEBUG_FLAG) $(INCLUDE_PATH) -o $@ $<
 
 .cc.o:
-	$(CXX) -c $(CXX_FLAG) $(INCLUDE_PATH) -o $@ $<
+	$(CXX) -c $(CXX_FLAG) $(DEBUG_FLAG) $(INCLUDE_PATH) -o $@ $<
 
 ####### Build rules
 
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CXX) $(CXX_FLAG) -o $(TARGET) $(OBJECTS) $(LIBRARY) $(INCLUDE_PATH)
+	$(CXX) $(CXX_FLAG) $(DEBUG_FLAG) -o $(TARGET) $(OBJECTS) $(LIBRARY) $(INCLUDE_PATH)
 
 $(OBJECTS): $(HEADERS) Makefile
 
